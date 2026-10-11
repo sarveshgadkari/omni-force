@@ -1,0 +1,15 @@
+{
+  "name": "omniforce",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:db && npm run test:functions",
+    "test:db": "node --test \"supabase/tests/db/*.test.mjs\"",
+    "test:functions": "deno test --config supabase/tests/functions/deno.json --allow-env --allow-read supabase/tests/functions/",
+    "check:functions": "deno check --config supabase/tests/functions/deno.json supabase/functions/*/index.ts"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.3.10",
+    "deno": "2.9.6"
+  }
+}

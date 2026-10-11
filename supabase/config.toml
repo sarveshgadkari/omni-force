@@ -1,0 +1,32 @@
+# Supabase CLI config for the OmniForce hub project (excerpt).
+project_id = "omniforce-hub"
+
+[auth]
+site_url = "http://localhost:5173"
+additional_redirect_urls = ["http://localhost:5173/reset-password"]
+enable_signup = true
+
+[auth.email]
+enable_confirmations = true
+otp_length = 6
+otp_expiry = 600
+# Use {{ .Token }} in the "Confirm signup" template so users receive a 6-digit code.
+
+[functions.stripe-webhook]
+verify_jwt = false
+[functions.sso-jwks]
+verify_jwt = false
+[functions.sync-worker]
+verify_jwt = false
+[functions.directory-webhook]
+verify_jwt = false
+[functions.wsso-webhook]
+verify_jwt = false
+[functions.workforce-agent]
+verify_jwt = false
+[functions.mcp]
+verify_jwt = false
+[functions.oidc]
+verify_jwt = false
+[functions.integration-api]
+verify_jwt = false
