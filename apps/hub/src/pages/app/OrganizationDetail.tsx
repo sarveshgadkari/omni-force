@@ -93,7 +93,7 @@ export function OrganizationDetail() {
             ))}
           </div>
         )}
-        <p className="dim small note">A seat lets a member open that product through OmniForce. What they can do inside the product is still managed in the product.</p>
+        <p className="dim small note">A seat lets a member open that product through Omni Force Vector. What they can do inside the product is still managed in the product.</p>
       </section>
 
       <section className="panel flush">
@@ -220,7 +220,7 @@ function InviteModal({ orgId, myRole, onClose }: { orgId: string; myRole: OrgRol
           try { setMade(await orgs.invite(orgId, email.trim(), role)); } catch (x) { setErr(x instanceof Error ? x.message : "Could not invite."); } finally { setBusy(false); }
         }}>
           {err && <Alert>{err}</Alert>}
-          <Field label="Email" hint="They must sign in to OmniForce with this exact, verified address to accept.">
+          <Field label="Email" hint="They must sign in to Omni Force Vector with this exact, verified address to accept.">
             <input id="inv-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" />
           </Field>
           <Field label="Role" hint={roleHelp[role]}>

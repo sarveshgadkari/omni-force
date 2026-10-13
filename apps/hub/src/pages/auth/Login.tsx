@@ -39,11 +39,11 @@ export function Login() {
     <form onSubmit={submit} className="stack" aria-describedby={err ? "login-err" : undefined}>
       <div className="stack-sm">
         <p className="step-tag">Welcome back</p>
-        <h2>Sign in to OmniForce</h2>
+        <h2>Sign in to Omni Force Vector</h2>
         <p className="dim">Manage your organizations, plans and access to every product.</p>
       </div>
       {reset && <Alert tone="ok">Your password was changed. Sign in with the new one.</Alert>}
-      {loc.state?.from?.startsWith("/oauth/authorize") && <Alert tone="info">An application asked you to sign in with OmniForce. You'll continue there afterwards.</Alert>}
+      {loc.state?.from?.startsWith("/oauth/authorize") && <Alert tone="info">An application asked you to sign in with Omni Force Vector. You'll continue there afterwards.</Alert>}
       {err && <div id="login-err"><Alert>{err}</Alert></div>}
       <Field label="Email"><input id="li-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@company.com" /></Field>
       <Field label="Password">
@@ -54,7 +54,7 @@ export function Login() {
         <Link to="/forgot">Forgot password?</Link>
       </div>
       <Button type="submit" loading={busy} className="btn-block btn-lg">Sign in</Button>
-      <p className="dim small center">New to OmniForce? <Link to="/signup">Create an account</Link></p>
+      <p className="dim small center">New to Omni Force Vector? <Link to="/signup">Create an account</Link></p>
     </form>
   );
 }

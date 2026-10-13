@@ -12,7 +12,7 @@ const ssoLabel = { not_configured: "not configured", testing: "testing (platform
 type Pending = { title: string; body: string; label: string; tone?: "danger" | "primary"; run: () => Promise<unknown>; ok?: string };
 
 /**
- * Applications that sign in with OmniForce (OAuth/OIDC clients) and the per-module
+ * Applications that sign in with Omni Force Vector (OAuth/OIDC clients) and the per-module
  * switches for SSO and provisioning. Everything starts off. Switch a module on
  * only after its team has built and tested their side (docs/INTEGRATION_AUTH.md).
  */
@@ -32,9 +32,9 @@ export function AdminApps() {
     setPending({
       title: `Set ${m.name} sign-in to ${ssoLabel[next]}?`,
       body: enabling
-        ? `Everyone with ${m.name} access will be sent through "Sign in with OmniForce". Only do this after the ${m.name} team has built and tested their side.`
-        : next === "testing" ? "Only platform admins will be able to sign in through OmniForce. Use this to test against a staging client."
-        : "OmniForce sign-in stops. Users go back to the product's own login.",
+        ? `Everyone with ${m.name} access will be sent through "Sign in with Omni Force Vector". Only do this after the ${m.name} team has built and tested their side.`
+        : next === "testing" ? "Only platform admins will be able to sign in through Omni Force Vector. Use this to test against a staging client."
+        : "Omni Force Vector sign-in stops. Users go back to the product's own login.",
       label: enabling ? "Enable for everyone" : "Change sign-in",
       tone: enabling ? "danger" : "primary",
       run: () => admin.setModuleIntegration(m.key, next, null),
@@ -45,8 +45,8 @@ export function AdminApps() {
     setPending({
       title: next === "enabled" ? `Enable provisioning to ${m.name}?` : `Disable provisioning to ${m.name}?`,
       body: next === "enabled"
-        ? `OmniForce will start creating and updating accounts in ${m.name} through its API. The ${m.name} API contract must be verified first.`
-        : "OmniForce stops sending account changes. Queued events are dead-lettered.",
+        ? `Omni Force Vector will start creating and updating accounts in ${m.name} through its API. The ${m.name} API contract must be verified first.`
+        : "Omni Force Vector stops sending account changes. Queued events are dead-lettered.",
       label: next === "enabled" ? "Enable provisioning" : "Disable provisioning",
       tone: next === "enabled" ? "danger" : "primary",
       run: () => admin.setModuleIntegration(m.key, null, next),
@@ -59,7 +59,7 @@ export function AdminApps() {
       <PageHeader
         eyebrow="Configuration"
         title="Applications and SSO"
-        description="Which products can sign people in with OmniForce, and which receive account provisioning. Everything starts switched off."
+        description="Which products can sign people in with Omni Force Vector, and which receive account provisioning. Everything starts switched off."
         actions={<Button onClick={() => setCreating(true)}><Icon name="plus" size={15} />Register application</Button>}
       />
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}
@@ -69,7 +69,7 @@ export function AdminApps() {
         <div className="panel-head"><h3><Icon name="layers" size={17} />Products</h3></div>
         <div className="table-wrap">
           <table className="table">
-            <thead><tr><th>Product</th><th>OmniForce sign-in</th><th>Provisioning</th><th>Notes</th></tr></thead>
+            <thead><tr><th>Product</th><th>Omni Force Vector sign-in</th><th>Provisioning</th><th>Notes</th></tr></thead>
             <tbody>
               {mods.loading && <SkeletonRows cols={4} rows={2} />}
               {(mods.data ?? []).filter((m) => m.deployment === "cloud").map((m) => (
@@ -131,7 +131,7 @@ export function AdminApps() {
             </tbody>
           </table>
         </div>
-        {clients.data?.length === 0 && <Empty icon="key" title="No applications registered">Register one when a product team is ready to build “Sign in with OmniForce”.</Empty>}
+        {clients.data?.length === 0 && <Empty icon="key" title="No applications registered">Register one when a product team is ready to build “Sign in with Omni Force Vector”.</Empty>}
       </section>
 
       {creating && <ClientForm onClose={() => setCreating(false)} onSaved={(s) => { setCreating(false); setSecret(s); clients.reload(); }} />}
@@ -192,7 +192,7 @@ function ClientForm({ client, onClose, onSaved }: { client?: OAuthClient; onClos
         )}
         <Field label="Name"><input id="cl-name" required value={name} onChange={(e) => setName(e.target.value)} placeholder="WSSO staging" /></Field>
         <Field label="Redirect URIs" hint="One per line. Exact match; https only (http allowed for localhost)."><textarea id="cl-redirects" rows={3} className="mono" value={redirects} onChange={(e) => setRedirects(e.target.value)} placeholder="https://wsso.example.com/auth/omniforce/callback" /></Field>
-        <Field label="Initiate-login URI" hint="Where “Open module” in OmniForce sends people. The application then starts the sign-in itself."><input id="cl-initiate" className="mono" value={initiate} onChange={(e) => setInitiate(e.target.value)} placeholder="https://wsso.example.com/auth/omniforce/start" /></Field>
+        <Field label="Initiate-login URI" hint="Where “Open module” in Omni Force Vector sends people. The application then starts the sign-in itself."><input id="cl-initiate" className="mono" value={initiate} onChange={(e) => setInitiate(e.target.value)} placeholder="https://wsso.example.com/auth/omniforce/start" /></Field>
         {client && (
           <Field label="Status" hint="Testing lets only platform admins sign in through this client.">
             <select id="cl-status" value={status} onChange={(e) => setStatus(e.target.value as OAuthClient["status"])}><option value="disabled">Disabled</option><option value="testing">Testing</option><option value="enabled">Enabled</option></select>

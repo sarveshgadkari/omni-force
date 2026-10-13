@@ -18,14 +18,14 @@ export function AdminUsers() {
       <PageHeader
         eyebrow="Platform"
         title="Users and access"
-        description="Every OmniForce account, their personal product access and linked product accounts."
+        description="Every Omni Force Vector account, their personal product access and linked product accounts."
         actions={<input id="admin-user-search" type="search" className="search" aria-label="Search users" placeholder="Search name, email, company or OF-ID" value={q} onChange={(e) => setQ(e.target.value)} />}
       />
       {users.error && <LoadError message={users.error} onRetry={users.reload} />}
       <section className="panel flush">
         <div className="table-wrap">
           <table className="table">
-            <thead><tr><th>User</th><th>OmniForce ID</th><th>Directory</th><th>WSSO</th><th>Workforce</th><th>Last product</th><th>Status</th><th className="actions"><span className="visually-hidden">Actions</span></th></tr></thead>
+            <thead><tr><th>User</th><th>Omni Force Vector ID</th><th>Directory</th><th>WSSO</th><th>Workforce</th><th>Last product</th><th>Status</th><th className="actions"><span className="visually-hidden">Actions</span></th></tr></thead>
             <tbody>
               {users.loading && <SkeletonRows cols={8} rows={5} />}
               {(users.data ?? []).map((u) => (
@@ -75,7 +75,7 @@ function UserDrawer({ user, plans, onClose, onChanged }: { user: AdminUserRow; p
       <div className="stack">
         {err && <Alert>{err}</Alert>}
         <dl className="kv-list">
-          <div><dt>OmniForce ID</dt><dd className="mono">{user.omniforce_id}</dd></div>
+          <div><dt>Omni Force Vector ID</dt><dd className="mono">{user.omniforce_id}</dd></div>
           <div><dt>Company</dt><dd>{user.company_name ?? "—"}</dd></div>
           <div><dt>Joined</dt><dd>{date(user.created_at)}</dd></div>
           <div><dt>Status</dt><dd><StatusPill s={user.status} /></dd></div>
@@ -137,7 +137,7 @@ function UserDrawer({ user, plans, onClose, onChanged }: { user: AdminUserRow; p
             <>
               <span className="stack-xs"><strong>Disable account</strong><span className="dim small">Blocks sign-in and deactivates every linked product account.</span></span>
               <Button variant="danger" className="btn-sm" onClick={() => setConfirm({
-                title: `Disable ${user.first_name}'s account?`, body: "They won't be able to sign in to OmniForce, and linked product accounts are deactivated where provisioning is enabled. You can re-enable it later.",
+                title: `Disable ${user.first_name}'s account?`, body: "They won't be able to sign in to Omni Force Vector, and linked product accounts are deactivated where provisioning is enabled. You can re-enable it later.",
                 label: "Disable account", run: () => admin.setUserStatus(user.id, "disabled"),
               })}><Icon name="lock" size={15} />Disable</Button>
             </>

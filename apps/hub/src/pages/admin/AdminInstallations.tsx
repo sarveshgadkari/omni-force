@@ -13,7 +13,7 @@ export function AdminInstallations() {
       <PageHeader
         eyebrow="Operations"
         title="Workforce installations"
-        description="Workforce 2.0 licence keys issued from OmniForce. Revoking a key stops its connection to OmniForce."
+        description="Workforce 2.0 licence keys issued from Omni Force Vector. Revoking a key stops its connection to Omni Force Vector."
       />
       {list.error && <LoadError message={list.error} onRetry={list.reload} />}
       <section className="panel flush">
@@ -43,7 +43,7 @@ export function AdminInstallations() {
       {confirm && (
         <ConfirmDialog
           title={`Revoke ${confirm.name}?`}
-          body={`The licence key ${confirm.license_key_prefix}… stops working and the installation can no longer sync with OmniForce. This can't be undone; the customer would need a new key.`}
+          body={`The licence key ${confirm.license_key_prefix}… stops working and the installation can no longer sync with Omni Force Vector. This can't be undone; the customer would need a new key.`}
           confirmLabel="Revoke licence"
           onClose={() => setConfirm(null)}
           onConfirm={async () => { await admin.revokeInstallation(confirm.id); list.reload(); }}

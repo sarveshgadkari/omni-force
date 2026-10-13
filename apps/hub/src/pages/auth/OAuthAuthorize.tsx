@@ -8,7 +8,7 @@ const PARAMS = ["client_id", "redirect_uri", "response_type", "scope", "state", 
 
 /**
  * /oauth/authorize — the browser-facing authorization endpoint for applications
- * that sign in with OmniForce (see docs/INTEGRATION_AUTH.md). The signed-in user
+ * that sign in with Omni Force Vector (see docs/INTEGRATION_AUTH.md). The signed-in user
  * is checked server-side (account, verified email, module access); the code goes
  * only to a redirect_uri registered for that client. Errors about the client or
  * redirect_uri are shown here and never redirected.
@@ -68,7 +68,7 @@ export function OAuthAuthorize() {
           <>
             <h2>Can't sign you in</h2>
             <Alert>{err}</Alert>
-            <Link to="/app">Go to my OmniForce account</Link>
+            <Link to="/app">Go to my Omni Force Vector account</Link>
           </>
         ) : (
           <>{busy && <span className="spin spin-lg" />}<p className="dim">Signing you in…</p></>

@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, HashRouter } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthProvider";
 import { App } from "./App";
+import { ToastHost } from "./components/ui";
 import "./styles.css";
 
 const Router = import.meta.env.VITE_HASH_ROUTER === "1" ? HashRouter : BrowserRouter;
@@ -12,6 +13,7 @@ createRoot(document.getElementById("root")!).render(
     <Router>
       <AuthProvider>
         <App />
+        <ToastHost />
       </AuthProvider>
     </Router>
   </StrictMode>,

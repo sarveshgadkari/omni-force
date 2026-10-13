@@ -8,11 +8,11 @@ const now = Date.now();
 const ago = (min: number) => new Date(now - min * 60_000).toISOString();
 const ahead = (days: number) => new Date(now + days * 86_400_000).toISOString();
 
-// Same integration state as a fresh database: no module has OmniForce sign-in switched on.
+// Same integration state as a fresh database: no module has Omni Force Vector sign-in switched on.
 export const demoModules: Module[] = [
   { key: "directory", name: "Drone Directory", deployment: "cloud", app_url: "https://drones-drones-drones.directoryup.com", sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "Brilliant Directories. SSO protocol support not verified; REST provisioning endpoints not confirmed with the BD team.", is_active: true, sort: 1 },
   { key: "wsso", name: "WSSO", deployment: "cloud", app_url: "https://wsso.tlbisbig.world", sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "Separate Supabase project (profiles, organizations). Integration contract drafted, nothing deployed on the WSSO side.", is_active: true, sort: 2 },
-  { key: "workforce", name: "Workforce 2.0", deployment: "onprem", app_url: null, sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "Desktop app (Windows, Linux, Android). OmniForce licence keys; activation from the app is not live.", is_active: true, sort: 3 },
+  { key: "workforce", name: "Workforce 2.0", deployment: "onprem", app_url: null, sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "Desktop app (Windows, Linux, Android). Omni Force Vector licence keys; activation from the app is not live.", is_active: true, sort: 3 },
 ];
 
 let pid = 0;
@@ -69,8 +69,8 @@ export const demoInvoices: Invoice[] = [
 export const demoLinks: IdentityLink[] = [];
 
 const people: [string, string, string, string, string | null][] = [
-  ["u-2", "Henry", "", "henry@omniforce.example", "OmniForce"],
-  ["u-3", "Trence", "", "trence@omniforce.example", "OmniForce"],
+  ["u-2", "Henry", "", "henry@omniforce.example", "Omni Force Vector"],
+  ["u-3", "Trence", "", "trence@omniforce.example", "Omni Force Vector"],
   ["u-4", "Priya", "Raman", "priya@ridgeline.example", "Ridgeline Inspections"],
   ["u-5", "Marcus", "Bell", "marcus@bellag.example", "Bell Ag Spraying"],
   ["u-6", "Lena", "Vogt", "lena@vogtmapping.example", "Vogt Mapping"],

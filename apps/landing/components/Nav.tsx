@@ -1,16 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { HUB_URL } from "@/lib/site";
+import { HUB_URL, navLinks, products } from "@/lib/site";
 import { Wordmark } from "./Logo";
-
-const links = [
-  { href: "#products", label: "Products" },
-  { href: "#platform", label: "Platform" },
-  { href: "#status", label: "Status" },
-  { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
-];
 
 export function Nav() {
   const [open, setOpen] = useState(false);
@@ -32,9 +24,15 @@ export function Nav() {
   return (
     <header className={`nav ${scrolled ? "is-scrolled" : ""} ${open ? "is-open" : ""}`}>
       <div className="wrap nav-inner">
-        <a href="#top" aria-label="OmniForce home"><Wordmark /></a>
+        <a href="/" aria-label="Omni Force Vector home"><Wordmark /></a>
         <nav aria-label="Main" className="nav-links">
-          {links.map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}
+          <div className="nav-drop">
+            <a href="/#products">Products</a>
+            <div className="nav-menu">
+              {products.map((p) => <a key={p.key} href={`/products/${p.key}`}>{p.name}</a>)}
+            </div>
+          </div>
+          {navLinks.filter((l) => l.href !== "/#products").map((l) => <a key={l.href} href={l.href}>{l.label}</a>)}
         </nav>
         <div className="nav-cta">
           <a className="btn btn-text" href={`${HUB_URL}/login`}>Sign in</a>
@@ -46,7 +44,8 @@ export function Nav() {
       </div>
       <div id="mobile-menu" className="mobile-menu" hidden={!open}>
         <nav aria-label="Mobile" className="wrap">
-          {links.map((l) => <a key={l.href} href={l.href} onClick={() => setOpen(false)}>{l.label}</a>)}
+          {products.map((p) => <a key={p.key} href={`/products/${p.key}`} onClick={() => setOpen(false)}>{p.name}</a>)}
+          {navLinks.filter((l) => l.href !== "/#products").map((l) => <a key={l.href} href={l.href} onClick={() => setOpen(false)}>{l.label}</a>)}
           <div className="mobile-cta">
             <a className="btn btn-ghost" href={`${HUB_URL}/login`}>Sign in</a>
             <a className="btn btn-primary" href={`${HUB_URL}/signup`}>Create account</a>

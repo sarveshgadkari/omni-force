@@ -4,9 +4,9 @@ import { moduleLabel, rel } from "../../lib/format";
 import { Alert, Button, ConfirmDialog, Empty, LoadError, PageHeader, SkeletonRows, useLoad } from "../../components/ui";
 
 /**
- * Identity-link review. OmniForce never links a module account to an OmniForce
+ * Identity-link review. Omni Force Vector never links a module account to an Omni Force Vector
  * user just because the email matches: such matches wait here until an admin
- * has confirmed (outside OmniForce) that both accounts belong to the same person.
+ * has confirmed (outside Omni Force Vector) that both accounts belong to the same person.
  */
 export function AdminLinks() {
   const list = useLoad(() => admin.linksToReview());
@@ -28,7 +28,7 @@ export function AdminLinks() {
 
   return (
     <div className="page">
-      <PageHeader eyebrow="Platform" title="Identity links to review" description="Product accounts that match an OmniForce user only by email. Nothing is shared with the product until you approve." />
+      <PageHeader eyebrow="Platform" title="Identity links to review" description="Product accounts that match an Omni Force Vector user only by email. Nothing is shared with the product until you approve." />
       <Alert tone="info">
         Approve only after confirming the person controls both accounts, for example they wrote in from the module account's address
         or proved it on a call. Linked accounts are used for sign-in, so a wrong approval gives one person another's account.
@@ -38,7 +38,7 @@ export function AdminLinks() {
       <section className="panel flush">
         <div className="table-wrap">
           <table className="table">
-            <thead><tr><th>OmniForce user</th><th>Module</th><th>Module account</th><th>Found</th><th>Note for audit</th><th className="actions"><span className="visually-hidden">Decision</span></th></tr></thead>
+            <thead><tr><th>Omni Force Vector user</th><th>Module</th><th>Module account</th><th>Found</th><th>Note for audit</th><th className="actions"><span className="visually-hidden">Decision</span></th></tr></thead>
             <tbody>
               {list.loading && <SkeletonRows cols={6} rows={2} />}
               {(list.data ?? []).map((l) => (

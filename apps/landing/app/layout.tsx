@@ -2,17 +2,23 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "OmniForce · Drone Directory, WSSO and Workforce 2.0",
+  title: "Omni Force Vector · Three platforms. One subscription.",
   description:
-    "One account for the Drone Directory, the WSSO business workspace and the Workforce 2.0 AI desktop app, with organizations, team seats and billing in one place.",
+    "Manage business operations, discover the drone industry and put AI to work through one central platform. WSSO and Drone Directory sign-in through Omni Force Vector is not configured. Workforce 2.0 is free to download; its in-app paid options are billed separately.",
+  icons: { icon: "/omniforce-vector-logo.png", apple: "/omniforce-vector-logo.png" },
+  openGraph: {
+    title: "Omni Force Vector",
+    images: [{ url: "/omniforce-vector-logo.png", alt: "Omni Force Vector" }],
+  },
 };
 
-export const viewport: Viewport = { themeColor: "#060b16", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: "#0B101B", colorScheme: "dark" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <link rel="icon" href="/omniforce-vector-logo.png" type="image/png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link

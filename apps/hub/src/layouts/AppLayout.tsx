@@ -53,7 +53,7 @@ export function AppLayout() {
       topCenter={<ModuleSwitcher />}
       sideFoot={profile && (
         <div className="side-card">
-          <span className="dim">OmniForce ID</span>
+          <span className="dim">Omni Force Vector ID</span>
           <strong className="mono">{profile.omniforce_id}</strong>
         </div>
       )}

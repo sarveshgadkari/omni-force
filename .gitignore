@@ -25,3 +25,10 @@ npm-debug.log*
 coverage/
 .vscode/
 .idea/
+
+# Vercel CLI local state
+.vercel/
+
+# written by `next dev` (Next 16.3+)
+apps/landing/AGENTS.md
+apps/landing/CLAUDE.md

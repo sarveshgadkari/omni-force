@@ -6,11 +6,11 @@ export function AuthLayout() {
   return (
     <div className="auth-shell">
       <aside className="auth-side">
-        <a href={LANDING_URL} className="auth-brand" aria-label="OmniForce home"><Wordmark size={32} /></a>
+        <a href={LANDING_URL} className="auth-brand" aria-label="Omni Force Vector home"><Wordmark size={32} /></a>
         <div className="auth-pitch">
-          <p className="eyebrow">One account · three products</p>
-          <h1>The drone industry, your operations and your AI workforce.</h1>
-          <p className="lede">Your OmniForce account holds your identity, organizations, plans and billing for every product.</p>
+          <p className="eyebrow">One subscription</p>
+          <h1>Three platforms. One place to work.</h1>
+          <p className="lede">Manage your business, discover opportunities and put AI to work through one central account. This login does not sign you into WSSO or the Drone Directory.</p>
           <ul className="auth-mods">
             <li className="m-directory">
               <span className="mod-ico"><ModuleIcon m="directory" /></span>

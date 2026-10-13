@@ -26,10 +26,10 @@ export function Overview() {
         <div className="stack-sm">
           <p className="eyebrow">Dashboard</p>
           <h1>Good to see you, {profile.first_name}</h1>
-          <p className="dim">Your products, organizations and billing in one place. Each product keeps its own data; OmniForce holds your identity and access.</p>
+          <p className="dim">Your products, organizations and billing in one place. Each product keeps its own data; Omni Force Vector holds your identity and access.</p>
         </div>
         <div className="stack-sm hero-side">
-          <div className="idcard"><span className="dim small">OmniForce ID</span><strong>{profile.omniforce_id}</strong></div>
+          <div className="idcard"><span className="dim small">Omni Force Vector ID</span><strong>{profile.omniforce_id}</strong></div>
           <div className="quick">
             <Link to="/app/orgs" className="btn btn-ghost btn-sm"><Icon name="building" size={15} />Organizations</Link>
             <Link to="/plans" className="btn btn-soft btn-sm"><Icon name="plus" size={15} />Add a product</Link>

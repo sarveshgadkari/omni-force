@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthProvider";
 import { Icon, Wordmark, type IconName } from "../components/ui";
 import { DEMO } from "../lib/supabase";
@@ -48,13 +48,41 @@ export function Shell({ sections, topCenter, home, tag, sideFoot, children }: {
         <button type="button" className="icon-btn menu-btn" aria-label={open ? "Close navigation" : "Open navigation"} aria-expanded={open} aria-controls="app-nav" onClick={() => setOpen((o) => !o)}>
           <Icon name={open ? "close" : "menu"} size={20} />
         </button>
-        <NavLink to={home} className="topbar-brand" aria-label="OmniForce home"><Wordmark size={26} /></NavLink>
+        <NavLink to={home} className="topbar-brand" aria-label="Omni Force Vector home"><Wordmark size={26} /></NavLink>
         {topCenter}
         <span className="topbar-spacer" />
         <UserMenu />
       </header>
-      <main className="content" id="main">{children}</main>
+      <main className="content" id="main"><Breadcrumbs />{children}</main>
     </div>
+  );
+}
+
+const CRUMB: Record<string, string> = {
+  app: "Dashboard", admin: "Admin", orgs: "Organizations", billing: "Plans and billing", settings: "Profile",
+  users: "Users", plans: "Plans", organizations: "Organizations", apps: "Applications", links: "Account links",
+  integrations: "Integrations", installations: "Installations", audit: "Audit log", m: "Modules",
+  directory: "Drone Directory", wsso: "WSSO", workforce: "Workforce 2.0",
+};
+
+function Breadcrumbs() {
+  const { pathname } = useLocation();
+  const parts = pathname.split("/").filter(Boolean);
+  if (parts.length < 2) return null;
+  const crumbs = parts.map((part, i) => ({
+    href: `/${parts.slice(0, i + 1).join("/")}`,
+    label: CRUMB[part] ?? "Details",
+    last: i === parts.length - 1,
+  }));
+  return (
+    <nav className="crumbs" aria-label="Breadcrumb">
+      {crumbs.map((c, i) => (
+        <span key={c.href} className="crumbs-item">
+          {i > 0 && <span className="crumbs-sep" aria-hidden="true">/</span>}
+          {c.last ? <span aria-current="page">{c.label}</span> : <Link to={c.href}>{c.label}</Link>}
+        </span>
+      ))}
+    </nav>
   );
 }
 

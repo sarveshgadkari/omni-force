@@ -31,6 +31,7 @@ import { AdminAudit } from "./pages/admin/AdminAudit";
 import { AdminOrganizations } from "./pages/admin/AdminOrganizations";
 import { AdminApps } from "./pages/admin/AdminApps";
 import { AdminLinks } from "./pages/admin/AdminLinks";
+import { NotFound } from "./pages/NotFound";
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { loading, profile } = useAuth();
@@ -87,7 +88,7 @@ export function App() {
       </Route>
 
       <Route path="/" element={<Navigate to="/app" replace />} />
-      <Route path="*" element={<Navigate to="/app" replace />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

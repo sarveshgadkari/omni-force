@@ -21,7 +21,7 @@ export function Settings() {
 
   return (
     <div className="page narrow">
-      <PageHeader eyebrow="Account" title="Profile and preferences" description="How you appear across OmniForce and where you land after signing in." />
+      <PageHeader eyebrow="Account" title="Profile and preferences" description="How you appear across Omni Force Vector and where you land after signing in." />
       <form
         className="panel stack"
         onSubmit={async (e) => {
@@ -48,7 +48,7 @@ export function Settings() {
           </select>
         </Field>
         <div className="row-between wrap-gap">
-          <span className="dim small">OmniForce ID <span className="mono fg">{profile.omniforce_id}</span></span>
+          <span className="dim small">Omni Force Vector ID <span className="mono fg">{profile.omniforce_id}</span></span>
           <Button type="submit" loading={busy} disabled={!dirty}>Save changes</Button>
         </div>
       </form>

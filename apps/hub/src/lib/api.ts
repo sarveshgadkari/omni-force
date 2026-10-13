@@ -32,9 +32,9 @@ const friendly: Record<string, string> = {
   invalid_slug: "Use lowercase letters, numbers and dashes.",
   reason_required: "Add a short reason. It goes in the audit trail.",
   enable_a_client_first: "Enable an application client before switching SSO on for everyone.",
-  external_account_linked_to_other_user: "That account is already linked to another OmniForce user.",
+  external_account_linked_to_other_user: "That account is already linked to another Omni Force Vector user.",
   user_already_linked_to_other_account: "This user is already linked to a different account in that module.",
-  external_org_linked_to_other_organization: "That organization is already linked to another OmniForce organization.",
+  external_org_linked_to_other_organization: "That organization is already linked to another Omni Force Vector organization.",
   organization_already_linked_to_other_account: "This organization is already linked to a different one in that module.",
 };
 const explain = (m: string) => {
@@ -324,7 +324,7 @@ export const launch = {
     if (DEMO) {
       demo.demoMe.last_module = m;
       const mod = demo.demoModules.find((x) => x.key === m);
-      return wait({ unavailable: true as const, app_url: mod?.app_url ?? null, message: `Signing in to ${mod?.name} with OmniForce isn't available yet. Sign in there directly with your existing login.` }, 500);
+      return wait({ unavailable: true as const, app_url: mod?.app_url ?? null, message: `Signing in to ${mod?.name} with Omni Force Vector isn't available yet. Sign in there directly with your existing login.` }, 500);
     }
     try {
       return await invoke<{ url: string }>("sso-launch", { module: m });
@@ -344,7 +344,7 @@ export const launch = {
   },
 };
 
-/* ───────────────────────── OAuth (applications signing in with OmniForce) ───────────────────────── */
+/* ───────────────────────── OAuth (applications signing in with Omni Force Vector) ───────────────────────── */
 
 export const oauth = {
   async authorize(params: Record<string, string | null>): Promise<{ redirect_to: string }> {

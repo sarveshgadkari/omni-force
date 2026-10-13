@@ -3,25 +3,13 @@ import type { ModuleKey } from "../lib/types";
 
 /* ───────────────────────── brand ───────────────────────── */
 
-export function LogoMark({ size = 28 }: { size?: number }) {
-  const id = useId();
+export function Wordmark({ size = 32 }: { size?: number }) {
+  const height = Math.round(size * 2.15);
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="var(--brand)" />
-          <stop offset="1" stopColor="var(--brand-2)" />
-        </linearGradient>
-      </defs>
-      <rect x="1" y="1" width="38" height="38" rx="11" fill="var(--surface-3)" stroke="var(--line-2)" />
-      <circle cx="17" cy="20" r="8.5" fill="none" stroke={`url(#${id})`} strokeWidth="4" />
-      <path d="M22.5 11.5h9M22.5 11.5v17M22.5 19.5h7" fill="none" stroke="var(--fg)" strokeWidth="3.6" strokeLinecap="round" />
-    </svg>
+    <span className="wordmark">
+      <img src="/omniforce-vector-logo.png" alt="Omni Force Vector" height={height} />
+    </span>
   );
-}
-
-export function Wordmark({ size = 28 }: { size?: number }) {
-  return <span className="wordmark"><LogoMark size={size} /> <span>OmniForce</span></span>;
 }
 
 /* ───────────────────────── icons ───────────────────────── */
@@ -307,11 +295,40 @@ export function ConfirmDialog({ title, body, confirmLabel, tone = "danger", onCo
 }
 
 /** Copy-to-clipboard button with feedback. */
+type ToastItem = { id: number; text: string };
+const toastListeners = new Set<(items: ToastItem[]) => void>();
+let toastItems: ToastItem[] = [];
+let toastSeq = 0;
+
+export function toast(text: string) {
+  const id = ++toastSeq;
+  toastItems = [...toastItems, { id, text }];
+  toastListeners.forEach((fn) => fn(toastItems));
+  window.setTimeout(() => {
+    toastItems = toastItems.filter((item) => item.id !== id);
+    toastListeners.forEach((fn) => fn(toastItems));
+  }, 3200);
+}
+
+export function ToastHost() {
+  const [items, setItems] = useState<ToastItem[]>([]);
+  useEffect(() => {
+    toastListeners.add(setItems);
+    return () => { toastListeners.delete(setItems); };
+  }, []);
+  if (!items.length) return null;
+  return (
+    <div className="toasts">
+      {items.map((item) => <div key={item.id} className="toast" role="status">{item.text}</div>)}
+    </div>
+  );
+}
+
 export function CopyButton({ text, label = "Copy" }: { text: string; label?: string }) {
   const [state, setState] = useState<"idle" | "ok" | "fail">("idle");
   return (
     <Button variant="ghost" type="button" onClick={async () => {
-      try { await navigator.clipboard.writeText(text); setState("ok"); } catch { setState("fail"); }
+      try { await navigator.clipboard.writeText(text); setState("ok"); toast("Copied"); } catch { setState("fail"); toast("Select and copy manually"); }
       setTimeout(() => setState("idle"), 2000);
     }}>
       <Icon name={state === "ok" ? "check" : "copy"} size={16} />

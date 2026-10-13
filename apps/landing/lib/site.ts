@@ -1,13 +1,18 @@
-// Central place for landing-page content. Product descriptions follow each
-// product's own website (checked 2026-10-11):
-//   Drone Directory  https://drones-drones-drones.directoryup.com
-//   WSSO             https://wsso.tlbisbig.world
-//   Workforce 2.0    https://workforce.trackmystartup.com
-// Prices marked `placeholder: true` are not final; replace them before launch.
+// Public-site content. Product facts follow each product's own website
+// (checked 2026-10-13 against the live sites) and docs/ARCHITECTURE.md. Plan rows follow
+// supabase/seed.sql. Dollar amounts in that seed are not published here:
+// Directory paid plans and the bundle are marked placeholders, Stripe price
+// IDs are unset, and WSSO's own website prices are not Omni Force Vector prices.
 
-export const HUB_URL = process.env.NEXT_PUBLIC_HUB_URL ?? "http://localhost:5173";
+export const HUB_URL =
+  process.env.NEXT_PUBLIC_HUB_URL ??
+  (process.env.NODE_ENV === "development" ? "http://localhost:5173" : "");
 
 export type ModuleKey = "directory" | "wsso" | "workforce";
+
+export const headline = "Three Platforms. One Subscription. One Place to Work.";
+export const supporting =
+  "Manage business operations, discover the drone industry and put AI to work — through one central platform.";
 
 export type Product = {
   key: ModuleKey;
@@ -15,191 +20,232 @@ export type Product = {
   site: string;
   siteLabel: string;
   eyebrow: string;
-  headline: string;
-  subhead?: string;
+  position: string;
   summary: string;
-  chips: { label: string; title: string }[];
+  value: string;
   features: { title: string; body: string }[];
+  uses: string[];
+  workflow: { title: string; body: string }[];
+  faqs: { q: string; a: string }[];
+  access: string;
   operator: string;
-  primary: { label: string; href: string };
-  secondary: { label: string; href: string };
-  /** What OmniForce does for this product today. Never claim SSO is live. */
-  omniforce: string;
+  cta: string;
 };
 
 export const products: Product[] = [
-  {
-    key: "directory",
-    name: "Drone Directory",
-    site: "https://drones-drones-drones.directoryup.com",
-    siteLabel: "drones-drones-drones.directoryup.com",
-    eyebrow: "Drone Directory",
-    headline: "Find top drone trainers, pilots and service providers.",
-    summary:
-      "A searchable directory for the drone industry. Search by need and location, read reviews from customers, and message members directly. Professionals list their business and get found.",
-    chips: [
-      { label: "Recreational Pilot", title: "Listing category" },
-      { label: "Commercial Pilot", title: "Listing category" },
-      { label: "Service Provider", title: "Listing category" },
-      { label: "Vendor", title: "Listing category" },
-    ],
-    features: [
-      { title: "Search members in your area", body: "Find pilots, trainers and providers by what you need and where." },
-      { title: "Read reviews from customers", body: "Member profiles with ratings and verified badges." },
-      { title: "Message members", body: "Contact professionals straight from their listing." },
-      { title: "Events", body: "Webinars, seminars and trainings, networking, trade shows, fly-ins and demonstrations." },
-      { title: "Jobs board", body: "Full-time and part-time drone work." },
-      { title: "Classifieds and deals", body: "Classified listings, new products for sale, coupons and deals." },
-    ],
-    operator: "Operated by HG Consulting Services, LLC in partnership with My Drone Force and TLB Enterprises.",
-    primary: { label: "Search the Directory", href: "https://drones-drones-drones.directoryup.com" },
-    secondary: { label: "List your business", href: "https://drones-drones-drones.directoryup.com" },
-    omniforce: "Free Scout plan with every OmniForce account. Directory sign-in through OmniForce is not configured yet; use your Directory login.",
-  },
   {
     key: "wsso",
     name: "WSSO",
     site: "https://wsso.tlbisbig.world",
     siteLabel: "wsso.tlbisbig.world",
-    eyebrow: "WSSO · Work management system",
-    headline: "Run the company. In one workspace.",
+    eyebrow: "Business operations",
+    position: "Business operations: teams, projects, tasks, attendance, leave, CRM, clients, documents, training and reports.",
     summary:
-      "Time, people, work orders, CRM and training in one company workspace. The company admin subscribes once and pays for every seat; each company's data stays isolated.",
-    chips: [
-      { label: "Small teams", title: "Who it's for" },
-      { label: "Typical SMB", title: "Who it's for" },
-      { label: "Larger organizations", title: "Who it's for" },
-    ],
+      "WSSO is the daily operations platform for time and attendance, work orders, people, clients, leads, training and reports. It is built around one company workspace, with organization-level membership and administration.",
+    value:
+      "A company keeps attendance, assigned work, CRM and training in the same workspace. Roles run from admin to director, manager and employee, and that company's data stays in its own workspace.",
     features: [
-      { title: "Time and attendance", body: "Clock in and out in each person's local timezone, with leave requests and shift limits." },
-      { title: "Work orders and TACTICs", body: "Assign work, track status on a kanban board and keep a document trail." },
-      { title: "People and CRM", body: "Employees, clients, leads and roles, with each company's data isolated." },
-      { title: "Training and documents", body: "Training modules, knowledge checks and shared files." },
-      { title: "Reports for the owner", body: "Time reports, project progress and performance summaries." },
-      { title: "Connect AI", body: "An optional MCP connection that gives AI tools the same permissions as the signed-in user." },
+      { title: "Time and attendance", body: "Clock in and out in each person's timezone. Shifts do not run past local midnight or 24 hours." },
+      { title: "Shifts, timezones and leave", body: "Country-aware timezones, a local midnight close, and leave requests in the same system." },
+      { title: "Work orders and TACTICs", body: "Assign work, track status on a kanban, and keep the document trail with the job." },
+      { title: "People and CRM", body: "Employees, clients and leads, with roles for admin, director, manager and employee." },
+      { title: "Organization and isolation", body: "Membership and administration sit at the company workspace. Each workspace's data stays separate." },
+      { title: "Training and documents", body: "Training modules, knowledge checks and shared documents the team uses on the job." },
+      { title: "Reports", body: "Time, project-progress and performance reports for the company." },
+      { title: "Optional MCP", body: "An optional, workspace-scoped connection so AI tools use WSSO with the same permissions as a signed-in user." },
     ],
-    operator: "By TLBISBIG Consulting Group, LLC · SME Digital Business Solutions.",
-    primary: { label: "Visit WSSO", href: "https://wsso.tlbisbig.world" },
-    secondary: { label: "See WSSO plans", href: "#pricing" },
-    omniforce: "Buy WSSO for an organization and assign seats from OmniForce. WSSO sign-in through OmniForce is not configured yet; use your WSSO login.",
+    uses: [
+      "A company admin running attendance, leave and shifts for the whole workspace.",
+      "Managers assigning work orders and tracking them on a kanban.",
+      "Teams keeping clients, leads and employees in one company record.",
+      "Owners reading time, project-progress and performance reports.",
+    ],
+    workflow: [
+      { title: "Open the company workspace", body: "People work inside the company workspace. Roles decide what each person can administer." },
+      { title: "Record time and assign work", body: "Clock in, request leave, and move work orders and TACTICs across the kanban." },
+      { title: "Train and report", body: "Run training modules and knowledge checks, share documents, and read the owner reports." },
+    ],
+    faqs: [
+      { q: "Does Omni Force Vector sign you into WSSO?", a: "No. WSSO single sign-on is not configured. Use the login on wsso.tlbisbig.world. An Omni Force Vector subscription does not create a WSSO workspace while provisioning is disabled." },
+      { q: "Are WSSO's published prices the Omni Force Vector price?", a: "No. WSSO sells its own Starter, Growth, Business and Enterprise plans on its website. Those figures are not Omni Force Vector prices." },
+    ],
+    access:
+      "Omni Force Vector can record a WSSO entitlement for an individual or an organization, including a seat limit when the plan has one. Opening WSSO still uses WSSO's own login. Sign-in through Omni Force Vector is not configured, and subscribing does not provision a WSSO account.",
+    operator: "WSSO is a product of TLBISBIG Consulting Group, LLC, under SME Digital Business Solutions.",
+    cta: "Open WSSO",
+  },
+  {
+    key: "directory",
+    name: "Drone Directory",
+    site: "https://drones-drones-drones.directoryup.com",
+    siteLabel: "drones-drones-drones.directoryup.com",
+    eyebrow: "Drone industry discovery",
+    position: "A directory for discovering businesses, service providers and profiles across the drone ecosystem.",
+    summary:
+      "The Drone Directory is a DirectoryUp site for finding drone training, pilots and sourcing. Search by keyword and location, compare member profiles and reviews, and contact members. Businesses can list themselves in the directory.",
+    value:
+      "People looking for a drone professional can compare trainers, pilots, service providers and vendors in one search. Businesses that want to be discovered can publish a listing with a category, profile and reviews.",
+    features: [
+      { title: "Search", body: "Search by the kind of member you need and your location, then browse who is listed." },
+      { title: "Who you can find", body: "Drone trainers, pilots, service providers and vendors, including recreational and commercial pilot listings." },
+      { title: "Profiles, categories and reviews", body: "Browse member profiles, categories and customer reviews before you contact anyone." },
+      { title: "Contact", body: "Message members through the directory." },
+      { title: "Events", body: "Webinars, seminars, networking, trade shows and related industry events." },
+      { title: "Jobs, coupons, classifieds and media", body: "Browse jobs, coupons, classifieds and media galleries." },
+      { title: "List a business", body: "Add a business so people searching the directory can find it." },
+    ],
+    uses: [
+      "An operator looking for a local pilot, trainer or service provider.",
+      "A buyer comparing profiles, categories and reviews before sending a message.",
+      "A training company, vendor or contractor that wants a public listing.",
+    ],
+    workflow: [
+      { title: "Search", body: "Enter a keyword and a location." },
+      { title: "Compare", body: "Open profiles, categories and reviews." },
+      { title: "Contact or list", body: "Message a member, or list your own business in the directory." },
+    ],
+    faqs: [
+      { q: "Does Omni Force Vector run the directory software?", a: "No. The directory runs on DirectoryUp. Omni Force Vector does not control those features." },
+      { q: "Can I sign in to the directory with Omni Force Vector?", a: "Not today. Directory single sign-on is not configured. Use the directory's own login. Subscribing does not create a directory account while provisioning is disabled." },
+    ],
+    access:
+      "Omni Force Vector can hold a directory entitlement. That does not operate DirectoryUp, and it does not sign you in. Scout and Recreational Pilot are configured as free plans. Paid directory prices in the database are placeholders and are not offered on this site.",
+    operator: "Operated as a DirectoryUp site. Omni Force Vector does not control the underlying directory features.",
+    cta: "Open the Drone Directory",
   },
   {
     key: "workforce",
     name: "Workforce 2.0",
     site: "https://workforce.trackmystartup.com",
     siteLabel: "workforce.trackmystartup.com",
-    eyebrow: "Workforce 2.0 · Desktop app",
-    headline: "Recruit your AI workforce.",
-    subhead: "An AI workforce that finishes the job.",
+    eyebrow: "AI-powered work automation",
+    position: "AI work through voice or text: research, marketing, inbox and workflow tasks. Free to download. Paid options inside the app are billed separately.",
     summary:
-      "A desktop app for Windows, Linux and Android. Tell the assistant what you need by voice or typing; AI workers use real tools and ask for your approval before anything is sent, published or spent. Files and memory stay on your computer.",
-    chips: [
-      { label: "Windows", title: "Available on" },
-      { label: "Linux", title: "Available on" },
-      { label: "Android", title: "Available on" },
-      { label: "Connects to 36 apps", title: "Integrations" },
-    ],
+      "Workforce 2.0 is a desktop and Android app. You make a request by voice or text. A planner coordinates specialist AI workers. You review and approve sensitive outbound actions before they proceed, by default.",
+    value:
+      "It takes a plain-language job — prospecting, a content calendar, an inbox draft, a price check — and prepares the output with the apps you connect. Sending, publishing and spending wait for you.",
     features: [
-      { title: "Whole-job engines", body: "Sales, marketing, inbox and replies, competitor prices, video studio and job applications." },
-      { title: "You approve first", body: "Read-only, draft-only or send permissions per app, and every decision is logged." },
-      { title: "Local document index", body: "Documents are indexed offline on your machine as plain files you can edit." },
-      { title: "Shared company memory", body: "Notes, decisions and conversations sync across the company and are searchable." },
-      { title: "Voice-first", body: "Talk to it, interrupt it, hand work between team members, record meetings." },
-      { title: "Task-based pricing", body: "Plans count finished tasks, not tokens. Chat and voice aren't counted." },
+      { title: "Voice or text", body: "Describe the task in ordinary words, spoken or typed. Chat and voice are included and do not use the task allowance." },
+      { title: "Planner and specialists", body: "A planner coordinates specialist AI workers. You describe the job; Workforce works out what happens next." },
+      { title: "Sales", body: "Find prospects, check their details, and prepare outreach for your review." },
+      { title: "Marketing", body: "Turn brand and competitor research into a plan, a calendar and content." },
+      { title: "Inbox", body: "Catch the requests that matter and draft replies in your voice." },
+      { title: "Competitor prices", body: "Compare published prices and spot changes." },
+      { title: "Connected apps", body: "Works with Google Workspace, Microsoft 365, Slack, WhatsApp and GitHub." },
+      { title: "Files and approval", body: "Files are stored and indexed on your computer. Team sharing uses Google Drive. AI needs internet. Sending, publishing and spending need approval by default. No response within 90 seconds stops the action. Approval can be turned off for an individual step." },
     ],
-    operator: "Mac version not available yet.",
-    primary: { label: "Download free", href: "https://workforce.trackmystartup.com" },
-    secondary: { label: "See Workforce plans", href: "#pricing" },
-    omniforce: "OmniForce can issue Workforce 2.0 licence keys for your account. Activation from the desktop app isn't live yet.",
+    uses: [
+      "Preparing a prospect list and outreach without sending it until you approve.",
+      "Turning research into a marketing calendar and draft content.",
+      "Drafting inbox replies and checking published competitor prices.",
+    ],
+    workflow: [
+      { title: "Describe the task", body: "Say it or type it. Ordinary words are enough." },
+      { title: "Workforce plans the work", body: "A planner coordinates the specialist workers and the connected apps the job needs." },
+      { title: "Specialists prepare the output", body: "Workers research, draft and assemble the result." },
+      { title: "You approve sensitive actions", body: "By default, sending, publishing and spending wait for your review. No response within 90 seconds stops the action." },
+    ],
+    faqs: [
+      { q: "Is the Workforce free plan part of Omni Force Vector?", a: "The published Workforce free plan is 300 tasks a month. Chat and voice are included. The free plan does not include CRM or persistent memory. Images and video use separate media credits. That plan is Workforce's own offer. It is not granted by an Omni Force Vector subscription unless a plan in the Omni Force Vector catalogue says so. None does today." },
+      { q: "Which computers can run it?", a: "Windows, Linux (Intel/AMD) and Android. Mac and iPhone downloads are not currently available on the published site." },
+      { q: "Are paid Workforce plans included?", a: "No. Paid plans and extra features may be purchased inside Workforce 2.0. Omni Force Vector licence rows (Single site, Multi site) have no public price and do not include those in-app plans or media credits." },
+    ],
+    access:
+      "Omni Force Vector licence activation from the app is not live. Download and use Workforce from its own site. An Omni Force Vector subscription does not turn on Workforce paid plans or media credits.",
+    operator: "Published by Workforce at workforce.trackmystartup.com. Files stay on your computer. AI features need internet.",
+    cta: "Open Workforce 2.0",
   },
 ];
 
-export const platform = [
-  { title: "One OmniForce ID", body: "A permanent account ID across every product. Changing your email never breaks access." },
-  { title: "Organizations and roles", body: "Owner, admin, billing and member roles with explicit, audited permissions." },
-  { title: "Seats you control", body: "Buy a product for your organization and choose who gets a seat." },
-  { title: "One place to pay", body: "Subscriptions, invoices and payment methods handled by Stripe." },
-  { title: "Invitations that can't be forwarded", body: "Single-use links that only work for the invited, verified email address." },
-  { title: "Sign in with OmniForce", body: "Standards-based OpenID Connect with PKCE, switched on product by product once each is ready." },
+export const productByKey = Object.fromEntries(products.map((p) => [p.key, p])) as Record<ModuleKey, Product>;
+
+export const howItWorks = [
+  {
+    n: "01",
+    title: "Create an Omni Force Vector account",
+    body: "Register with your name, email and password. Confirm the email with the 6-digit code we send. After that, sign in with the same email and password. This login is the Omni Force Vector account. It is not a login for WSSO or the Drone Directory.",
+  },
+  {
+    n: "02",
+    title: "Create or join an organization if you need one",
+    body: "An organization is optional for an individual entitlement and required when a company shares access. Create one from the hub, or accept an invitation. Invitations are single-use and only work for the invited, verified email address. Roles are owner, admin, billing and member. Owners and billing manage payment. Admins manage people, invitations and module seats. Members use the modules they have a seat for.",
+  },
+  {
+    n: "03",
+    title: "Choose an Omni Force Vector subscription",
+    body: "Plans in the hub come from the central catalogue. Each plan grants specific modules, for an individual or an organization, with the seat limit configured on that plan. Free directory plans (Scout and Recreational Pilot) are $0. Paid directory prices and the Directory + WSSO bundle price are placeholders and are not offered here. WSSO seat tiers are in the catalogue, but WSSO's website prices are not Omni Force Vector prices, and Stripe price IDs are not set. Workforce rows are licences with no public price. Renewal and cancellation, once a Stripe subscription exists, are handled in the billing portal: a subscription renews until you cancel, and cancel-at-period-end ends access at the period end.",
+  },
+  {
+    n: "04",
+    title: "Open an enabled platform",
+    body: "The module launcher shows Drone Directory, WSSO and Workforce 2.0. What you can open depends on a live entitlement — yours, or an organization seat — and on that application's integration. WSSO and the Drone Directory are not configured for single sign-on. Workforce licence activation from the app is not live. Subscribing does not create accounts in those applications while provisioning is disabled.",
+  },
+  {
+    n: "05",
+    title: "Manage access centrally",
+    body: "From the hub you can see your account, organizations, members, invitations, subscriptions and which modules each entitlement covers. Changing a module still uses that product's own login until its integration is switched on.",
+  },
 ];
 
-/** Truthful integration status. Update only when a product's side is live. */
-export const status: { item: string; state: "available" | "not_configured" | "not_live"; note: string }[] = [
-  { item: "OmniForce account, organizations and billing", state: "available", note: "Sign up, verify your email, create organizations, invite people, buy plans." },
-  { item: "Drone Directory sign-in through OmniForce", state: "not_configured", note: "Keep using your Directory login." },
-  { item: "WSSO sign-in through OmniForce", state: "not_configured", note: "Keep using your WSSO login." },
-  { item: "Workforce 2.0 licence activation", state: "not_live", note: "Download and use Workforce 2.0 from its own site." },
+export const benefits = [
+  { title: "One account", body: "Registration, email verification and sign-in live in Omni Force Vector, separate from each product's login." },
+  { title: "Organizations", body: "Invite people, assign roles, and give module seats from the organization — when a plan includes seats." },
+  { title: "Subscriptions you can inspect", body: "The hub lists the plans that are actually configured, including which modules and seat limits they grant." },
+  { title: "A module launcher", body: "Enabled products are listed in one place. Access still depends on the entitlement and that product's integration status." },
 ];
 
-export const signupSteps = [
-  { title: "Create your account", body: "Name, email and password. You get one OmniForce ID." },
-  { title: "Verify your email", body: "Enter the 6-digit code we send you." },
-  { title: "Choose plans", body: "For yourself or for an organization, monthly or yearly." },
-  { title: "Invite your team", body: "Add people to your organization and give them seats." },
-];
-
-export type Plan = {
-  module: ModuleKey | "bundle";
+export type PublicPlan = {
+  code: string;
   name: string;
-  monthly: number | null; // USD; null = quote / see site
-  note: string;
-  seats?: string;
-  placeholder?: boolean;
-  featured?: boolean;
-  /** Plans sold on the product's own site link there instead of OmniForce sign-up. */
-  external?: { label: string; href: string };
-  priceLabel?: string;
-  noYearly?: boolean;
+  modules: string;
+  access: string;
+  limits: string;
+  billing: string;
+  price: string;
 };
 
-const WF = "https://workforce.trackmystartup.com";
-
-export const plans: Plan[] = [
-  // Drone Directory: plan names from the Directory's listing categories; paid prices are placeholders.
-  { module: "directory", name: "Scout", monthly: 0, note: "Browse the directory" },
-  { module: "directory", name: "Recreational Pilot", monthly: 0, note: "Basic pilot profile" },
-  { module: "directory", name: "Commercial Pilot", monthly: 19, note: "Pilot listing with reviews", placeholder: true },
-  { module: "directory", name: "Service Provider", monthly: 49, note: "Company listing with services", placeholder: true, featured: true },
-  { module: "directory", name: "Vendor", monthly: 79, note: "Product and equipment listings", placeholder: true },
-  { module: "directory", name: "Employer / Contractor", monthly: 99, note: "Post jobs and find pilots", placeholder: true },
-  // WSSO: prices from wsso.tlbisbig.world
-  { module: "wsso", name: "Starter", monthly: 99, seats: "10 seats", note: "Small teams · 14-day trial" },
-  { module: "wsso", name: "Growth", monthly: 299, seats: "50 seats", note: "Typical SMB · 14-day trial", featured: true },
-  { module: "wsso", name: "Business", monthly: 699, seats: "150 seats", note: "Larger organizations" },
-  { module: "wsso", name: "Enterprise", monthly: 1500, seats: "500 seats", note: "Custom seats" },
-  // Workforce 2.0: from workforce.trackmystartup.com; sold there.
-  { module: "workforce", name: "Free", monthly: 0, note: "300 tasks a month with your own free Google AI key", noYearly: true, external: { label: "Download free", href: WF } },
-  { module: "workforce", name: "Basic", monthly: 19.99, note: "1,000 tasks a month, with history and memory", featured: true, noYearly: true, external: { label: "Get Basic", href: WF } },
-  { module: "workforce", name: "Pro", monthly: null, priceLabel: "See site", note: "More tasks for heavier use", noYearly: true, external: { label: "View plan", href: WF } },
-  { module: "workforce", name: "Enterprise", monthly: null, priceLabel: "See site", note: "For teams and companies", noYearly: true, external: { label: "View plan", href: WF } },
-  // Bundles: placeholders
-  { module: "bundle", name: "Directory + WSSO", monthly: 329, note: "Service Provider + WSSO Growth", placeholder: true, featured: true },
-  { module: "bundle", name: "All products", monthly: null, note: "Directory, WSSO and Workforce 2.0", seats: "Quote" },
+/** Monthly, free and licence rows from supabase/seed.sql. Yearly rows exist as 10× the monthly amount and are not listed with a price. */
+export const publicPlans: PublicPlan[] = [
+  { code: "dir_scout", name: "Scout", modules: "Drone Directory", access: "Individual or organization", limits: "No seat cap configured", billing: "Free", price: "Free" },
+  { code: "dir_recreational", name: "Recreational Pilot", modules: "Drone Directory", access: "Individual or organization", limits: "No seat cap configured", billing: "Free", price: "Free" },
+  { code: "dir_commercial_month", name: "Commercial Pilot", modules: "Drone Directory", access: "Individual or organization", limits: "No seat cap configured", billing: "Monthly and yearly rows exist", price: "Not published" },
+  { code: "dir_provider_month", name: "Service Provider", modules: "Drone Directory", access: "Individual or organization", limits: "No seat cap configured", billing: "Monthly and yearly rows exist", price: "Not published" },
+  { code: "dir_vendor_month", name: "Vendor", modules: "Drone Directory", access: "Individual or organization", limits: "No seat cap configured", billing: "Monthly and yearly rows exist", price: "Not published" },
+  { code: "dir_employer_month", name: "Employer / Contractor", modules: "Drone Directory", access: "Individual or organization", limits: "No seat cap configured", billing: "Monthly and yearly rows exist", price: "Not published" },
+  { code: "wsso_starter_month", name: "Starter", modules: "WSSO", access: "Individual or organization", limits: "10 seats · 14-day trial", billing: "Monthly and yearly rows exist", price: "Not an Omni Force Vector price" },
+  { code: "wsso_growth_month", name: "Growth", modules: "WSSO", access: "Individual or organization", limits: "50 seats · 14-day trial", billing: "Monthly and yearly rows exist", price: "Not an Omni Force Vector price" },
+  { code: "wsso_business_month", name: "Business", modules: "WSSO", access: "Individual or organization", limits: "150 seats", billing: "Monthly and yearly rows exist", price: "Not an Omni Force Vector price" },
+  { code: "wsso_enterprise_month", name: "Enterprise", modules: "WSSO", access: "Individual or organization", limits: "500 seats", billing: "Monthly and yearly rows exist", price: "Not an Omni Force Vector price" },
+  { code: "wf_single_license", name: "Single site", modules: "Workforce 2.0", access: "Individual or organization", limits: "Licence · no seat cap configured", billing: "Licence, not a task plan", price: "No public price" },
+  { code: "wf_multi_license", name: "Multi site", modules: "Workforce 2.0", access: "Individual or organization", limits: "Licence · no seat cap configured", billing: "Licence, not a task plan", price: "No public price" },
+  { code: "bundle_dir_wsso_month", name: "Directory + WSSO", modules: "Drone Directory and WSSO", access: "Individual or organization", limits: "50 seats · 14-day trial", billing: "Monthly and yearly rows exist", price: "Not published" },
 ];
 
+export const pricingNote =
+  "Only Scout and Recreational Pilot have a configured price: free. Other amounts stored in the catalogue are either placeholders (paid directory plans and the Directory + WSSO bundle) or WSSO's own plan figures, which are not Omni Force Vector prices. Stripe price IDs are not set, so this site does not offer those paid amounts. Workforce's 300-task free plan, paid Workforce plans and media credits are purchased inside Workforce 2.0 unless a future Omni Force Vector plan explicitly includes them.";
+
 export const faqs = [
-  {
-    q: "Can I sign in to the Directory or WSSO with my OmniForce account today?",
-    a: "Not yet. Single sign-on is not configured for the Drone Directory or WSSO. Keep using their own logins. OmniForce already manages your account, organizations, plans and access, and sign-in will be switched on one product at a time once each product's team has built and tested it.",
-  },
-  {
-    q: "What happens to my existing Directory listing or WSSO workspace?",
-    a: "Nothing changes: your listing, profile and workspace data stay where they are. When single sign-on goes live we link your existing account only after you prove it's yours by signing in to it. A matching email alone is never enough.",
-  },
-  {
-    q: "What is Workforce 2.0?",
-    a: "A desktop AI workforce for Windows, Linux and Android. You ask for work by voice or typing, AI workers do it with real tools, and nothing is sent, published or paid for without your approval. It's downloaded and priced on workforce.trackmystartup.com.",
-  },
-  {
-    q: "Can I buy for my team?",
-    a: "Yes. Create an organization, buy a plan billed to it, invite people and give each person a seat. Owners and billing members manage payment; admins manage people and seats.",
-  },
-  {
-    q: "Can I upgrade, downgrade or cancel one product?",
-    a: "Yes. Each product is its own line on your subscription. Changes take effect at the end of the billing period unless you upgrade, which applies straight away.",
-  },
-  {
-    q: "Who handles payments?",
-    a: "Stripe. OmniForce never sees or stores your card details. Invoices are kept in your account.",
-  },
+  { q: "What is Omni Force Vector?", a: "Omni Force Vector is the central account for the Drone Directory, WSSO and Workforce 2.0. It handles registration, organizations, subscriptions and a hub that shows which modules an account can open. It does not replace each product's own application." },
+  { q: "What are the three platforms?", a: "WSSO is the company workspace for time, work orders, people, training and reports. The Drone Directory is where you search for drone professionals or list a business. Workforce 2.0 is the AI work app: you describe a task, specialists prepare it, and you approve sensitive actions." },
+  { q: "How does the combined subscription work?", a: "The catalogue can grant one module or a bundle. The only bundle configured today is Directory + WSSO, and its price is a placeholder, so it is not offered on this site. A subscription grants the modules on that plan. It does not automatically include every Workforce paid feature, and it does not create accounts in WSSO or the directory while provisioning is disabled." },
+  { q: "Is Workforce 2.0 free to download?", a: "Workforce publishes a free plan with 300 tasks a month. Chat and voice are included. The free plan does not include CRM or persistent memory. Images and video use separate media credits. Windows, Linux (Intel/AMD) and Android are supported. Mac and iPhone downloads are not currently available. Download it from workforce.trackmystartup.com." },
+  { q: "Are Workforce 2.0 paid features included?", a: "No. Paid plans and additional features may be purchased inside Workforce 2.0. Omni Force Vector does not grant those task plans or media credits." },
+  { q: "Can a company manage access for its team?", a: "Yes. Create an organization, subscribe to a plan that includes the modules you need, and assign seats where the plan has a seat limit. Owners and billing manage payment. Admins manage members and seats." },
+  { q: "How do organization invitations work?", a: "An admin or owner invites an email address. The link is single-use and only works for that verified email. The invited person accepts it in the Omni Force Vector hub and receives the role on the invitation." },
+  { q: "Can users switch modules?", a: "The launcher lists the modules their entitlement covers. Switching does not sign them into WSSO or the Drone Directory. Those products keep their own logins until single sign-on is configured and verified." },
+  { q: "Is single sign-on available for every platform?", a: "No. Omni Force Vector sign-in is only the central account. WSSO and the Drone Directory are not configured for single sign-on. Workforce licence activation from the app is not live. Nothing here claims those integrations work." },
+  { q: "How are subscription and access issues handled?", a: "Billing, invoices and cancellation are in the hub's billing area, through Stripe once a subscription exists. Module access follows the live entitlement and seat assignment. If a product will not open, check that the entitlement is active and remember that external sign-in is still that product's own login. Platform administrators can review account links, integration queues and audit logs." },
+];
+
+export const navLinks = [
+  { href: "/#products", label: "Products" },
+  { href: "/how-it-works", label: "How it works" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
+];
+
+export const legalLinks = [
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
 ];

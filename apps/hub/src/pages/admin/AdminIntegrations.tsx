@@ -14,7 +14,7 @@ export function AdminIntegrations() {
   return (
     <div className="page">
       <div className="page-head">
-        <div><p className="eyebrow">Operations</p><h1>Sync log</h1><p className="dim page-desc">Everything OmniForce sends to products, and every webhook they send back. Provisioning is off for every product until its API is verified.</p></div>
+        <div><p className="eyebrow">Operations</p><h1>Sync log</h1><p className="dim page-desc">Everything Omni Force Vector sends to products, and every webhook they send back. Provisioning is off for every product until its API is verified.</p></div>
         <div className="toolbar">
           <select id="ev-module" value={module} onChange={(e) => setModule(e.target.value as ModuleKey | "")} aria-label="Module">
             <option value="">All products</option>

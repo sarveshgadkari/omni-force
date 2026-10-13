@@ -101,7 +101,7 @@ function OrgDrawer({ org, plans, onClose, onChanged }: { org: AdminOrgRow; plans
               {org.links.map((l) => (
                 <tr key={l.id}><td>{moduleLabel[l.module_key]}</td><td className="mono">{l.external_org_id}</td><td><StatusPill s={l.status} /></td><td className="dim small">{l.link_method}</td></tr>
               ))}
-              {org.links.length === 0 && <tr><td className="dim">Not linked. Links are normally created when an organization admin signs in to the module through OmniForce.</td></tr>}
+              {org.links.length === 0 && <tr><td className="dim">Not linked. Links are normally created when an organization admin signs in to the module through Omni Force Vector.</td></tr>}
             </tbody>
           </table>
           <details>

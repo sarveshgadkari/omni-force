@@ -111,7 +111,7 @@ export function ChoosePlan() {
             <Alert tone="info" title="Workforce 2.0 is a desktop app">
               Its task-based plans (Free, Basic, Pro, Enterprise) are on{" "}
               <a href="https://workforce.trackmystartup.com/" target="_blank" rel="noopener noreferrer">workforce.trackmystartup.com</a>.
-              OmniForce licences below are arranged with our team.
+              Omni Force Vector licences below are arranged with our team.
             </Alert>
           )}
           {!plans ? <Spinner label="Loading plans" /> : (
@@ -166,7 +166,7 @@ export function ChoosePlan() {
           <Button onClick={pay} loading={busy} className="btn-block">
             {paid.length ? "Continue to secure payment" : "Continue with free plan"}
           </Button>
-          <p className="dim small center"><Pill>Stripe</Pill> Card details are handled by Stripe, never stored by OmniForce.</p>
+          <p className="dim small center"><Pill>Stripe</Pill> Card details are handled by Stripe, never stored by Omni Force Vector.</p>
         </aside>
       </div>
     </div>

@@ -68,7 +68,7 @@ export function Signup() {
       <div className="stack-sm">
         <StepsBar step={1} />
         <p className="step-tag">Step 1 of 4 · Create account</p>
-        <h2>Create your OmniForce account</h2>
+        <h2>Create your Omni Force Vector account</h2>
         <p className="dim">One account for the Drone Directory, WSSO and Workforce 2.0.</p>
       </div>
       {err && <Alert>{err}</Alert>}

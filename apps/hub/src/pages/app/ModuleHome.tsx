@@ -71,7 +71,7 @@ export function ModuleHome() {
               <div><dt>Status</dt><dd><StatusPill s={a.status} /></dd></div>
               <div><dt>Through</dt><dd>{a.via === "organization"
                 ? <>Seat in <Link to={`/app/orgs/${a.organization_id}`}>{a.organization_name}</Link></>
-                : { stripe: "Your subscription", free: "Free plan", admin: "OmniForce admin", license: "Licence" }[a.source]}</dd></div>
+                : { stripe: "Your subscription", free: "Free plan", admin: "Omni Force Vector admin", license: "Licence" }[a.source]}</dd></div>
               <div><dt>Paid through</dt><dd className="mono">{date(a.valid_until)}</dd></div>
             </dl>
             {mine.length > 1 && <p className="dim small note">You also have access through {mine.filter((x) => x !== a).map((x) => x.organization_name ?? "your own plan").join(", ")}.</p>}
@@ -80,7 +80,7 @@ export function ModuleHome() {
             <section className="panel">
               <div className="panel-head"><h3><Icon name="key" size={17} />{moduleLabel[m]} sign-in</h3></div>
               <dl className="kv-list">
-                <div><dt>OmniForce sign-in</dt><dd><SsoPill status={mod?.sso_status} /></dd></div>
+                <div><dt>Omni Force Vector sign-in</dt><dd><SsoPill status={mod?.sso_status} /></dd></div>
                 {link && <div><dt>{m === "directory" ? "Member ID" : "Account ID"}</dt><dd className="mono">{link.external_id ?? "—"}</dd></div>}
                 {link && <div><dt>Link</dt><dd><StatusPill s={link.status} /> <span className="dim small">{rel(link.last_synced_at)}</span></dd></div>}
               </dl>
@@ -88,7 +88,7 @@ export function ModuleHome() {
                 <p className="dim small note">
                   Until single sign-on is switched on, keep using your existing {moduleLabel[m]} login
                   {mod?.app_url && <> at <a href={mod.app_url} target="_blank" rel="noopener noreferrer">{new URL(mod.app_url).host}</a></>}.
-                  Your OmniForce plan already records your access.
+                  Your Omni Force Vector plan already records your access.
                 </p>
               )}
               {m === "directory" && <p className="dim small note">Your listing, reviews, categories and verification are managed inside the Directory.</p>}
@@ -129,7 +129,7 @@ function Installations() {
   return (
     <section className="panel flush">
       <div className="panel-head">
-        <div className="stack-xs"><h3><Icon name="server" size={17} />Licence keys</h3><span className="panel-sub">One key per computer or site that will connect to OmniForce</span></div>
+        <div className="stack-xs"><h3><Icon name="server" size={17} />Licence keys</h3><span className="panel-sub">One key per computer or site that will connect to Omni Force Vector</span></div>
         <Button variant="soft" className="btn-sm" onClick={() => { setOpen(true); setIssued(null); setName(""); setErr(null); }}><Icon name="plus" size={15} />New licence key</Button>
       </div>
       <div className="table-wrap">
@@ -150,7 +150,7 @@ function Installations() {
           </tbody>
         </table>
       </div>
-      {list.data?.length === 0 && <Empty icon="key" title="No licence keys yet">Create one when you're ready to connect Workforce 2.0 to your OmniForce account.</Empty>}
+      {list.data?.length === 0 && <Empty icon="key" title="No licence keys yet">Create one when you're ready to connect Workforce 2.0 to your Omni Force Vector account.</Empty>}
       {list.error && <Alert>{list.error}</Alert>}
 
       {open && (
