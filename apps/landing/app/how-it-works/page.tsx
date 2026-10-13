@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Check, ProductIcon } from "@/components/Icons";
 import { PageHero, SiteFrame } from "@/components/SiteFrame";
-import { howItWorks, products } from "@/lib/site";
+import { HUB_URL, howItWorks, products } from "@/lib/site";
+import { Screenshot } from "@/components/Screenshot";
 
 export const metadata: Metadata = {
   title: "How it works · Omni Force Vector",
@@ -31,7 +32,18 @@ export default function HowItWorksPage() {
           </ol>
         </div>
       </section>
-      <section className="section section-band">
+      <section className="section section-band" aria-labelledby="start-h">
+        <div className="wrap tour-row">
+          <div className="tour-copy">
+            <p className="eyebrow">Get started</p>
+            <h2 id="start-h">Your account in a couple of minutes</h2>
+            <p className="dim">Sign up with your name, work email and a password, confirm with a 6-digit code, and you're in, with your own Omni Force Vector ID.</p>
+            <p><a className="btn btn-primary" href={`${HUB_URL}/signup`}>Create your account</a></p>
+          </div>
+          <Screenshot name="signup" alt="The Omni Force Vector sign-up screen with name, email, company and password fields" sizes="(max-width: 1080px) 100vw, 680px" />
+        </div>
+      </section>
+      <section className="section">
         <div className="wrap">
           <div className="section-head">
             <p className="eyebrow">How they fit</p>

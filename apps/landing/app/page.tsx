@@ -1,8 +1,38 @@
-import { AccountConsole } from "@/components/AccountConsole";
-import { Arrow, ProductIcon } from "@/components/Icons";
+import { Arrow, Check, ProductIcon } from "@/components/Icons";
 import { Pricing } from "@/components/Pricing";
+import { HeroShowcase, Screenshot, type ShotName } from "@/components/Screenshot";
+import { ProductShot } from "@/components/ProductShot";
 import { SiteFrame } from "@/components/SiteFrame";
 import { benefits, faqs, headline, howItWorks, HUB_URL, products, supporting } from "@/lib/site";
+
+// "Inside the hub" tour: customer-facing screens only (marketing site), each
+// claim backed by what the screen really does.
+const tour: { shot: ShotName; eyebrow: string; title: string; body: string; points: string[]; alt: string }[] = [
+  {
+    shot: "module-wsso",
+    eyebrow: "Your products",
+    title: "Every product, one dashboard",
+    body: "See your plan and access for WSSO, the Drone Directory and Workforce 2.0 side by side, and reach each product from the same place.",
+    points: ["Plan and access for every product", "Personal plans and team seats together", "One click to each product's site"],
+    alt: "The WSSO page in the Omni Force Vector hub showing plan, status and access through an organization seat",
+  },
+  {
+    shot: "organization",
+    eyebrow: "Teams",
+    title: "Bring your whole team",
+    body: "Create an organization, invite colleagues by email and choose who gets a seat for each product.",
+    points: ["Owner, admin, billing and member roles", "Secure, single-use invitations", "Seats used at a glance"],
+    alt: "Organization page with a seat meter and a members table with roles and seat checkboxes",
+  },
+  {
+    shot: "billing",
+    eyebrow: "Billing",
+    title: "Plans and invoices in one place",
+    body: "Know what you pay for, when it renews and where every invoice is. Payments are processed securely by Stripe.",
+    points: ["Active plans and monthly spend", "Renewal dates up front", "Invoices and card details through Stripe"],
+    alt: "Plans and billing page with active plans, monthly spend, next renewal and an invoices table",
+  },
+];
 
 export default function Home() {
   return (
@@ -10,7 +40,7 @@ export default function Home() {
       <section className="hero" id="top">
         <div className="wrap hero-grid">
           <div className="hero-copy">
-            <img className="hero-logo" src="/omniforce-vector-logo.png" alt="Omni Force Vector" />
+            <img className="hero-logo" src="/omniforce-vector-logo-640.webp" srcSet="/omniforce-vector-logo-320.webp 320w, /omniforce-vector-logo-640.webp 640w" sizes="240px" width={640} height={342} alt="Omni Force Vector" />
             <h1>{headline}</h1>
             <p className="lede">{supporting}</p>
             <p className="dim">
@@ -21,7 +51,7 @@ export default function Home() {
               <a className="btn btn-ghost btn-lg" href="/how-it-works">How it works</a>
             </div>
           </div>
-          <AccountConsole />
+          <HeroShowcase />
         </div>
       </section>
 
@@ -33,18 +63,47 @@ export default function Home() {
           </div>
           <div className="cards cards-3">
             {products.map((p) => (
-              <article key={p.key} className={`card m-${p.key}`}>
+              <article key={p.key} className={`card card-media m-${p.key}`}>
+                <a href={`/products/${p.key}`} className="card-shot" tabIndex={-1} aria-hidden="true"><ProductShot m={p.key} compact /></a>
+                <div className="card-body">
                 <span className="strip-ico"><ProductIcon m={p.key} /></span>
                 <h3>{p.name}</h3>
                 <p className="dim">{p.position}</p>
                 <a className="text-link" href={`/products/${p.key}`}>View {p.name} <Arrow /></a>
+                </div>
               </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="section section-band" aria-labelledby="sub-h">
+      <section className="section section-band" aria-labelledby="tour-h">
+        <div className="wrap">
+          <div className="section-head center">
+            <p className="eyebrow">Inside the hub</p>
+            <h2 id="tour-h">Everything you need, in one account</h2>
+            <p className="dim">Take a look inside the Omni Force Vector hub before you sign up.</p>
+          </div>
+          <div className="tour">
+            {tour.map((t, i) => (
+              <article key={t.shot} className={`tour-row ${i % 2 ? "is-flipped" : ""}`}>
+                <div className="tour-copy">
+                  <p className="eyebrow">{t.eyebrow}</p>
+                  <h3>{t.title}</h3>
+                  <p className="dim">{t.body}</p>
+                  <ul className="tour-points">
+                    {t.points.map((pt) => <li key={pt}><Check />{pt}</li>)}
+                  </ul>
+                </div>
+                <Screenshot name={t.shot} alt={t.alt} sizes="(max-width: 1080px) 100vw, 680px" />
+              </article>
+            ))}
+          </div>
+          <p className="fine-print center">Screens show sample data.</p>
+        </div>
+      </section>
+
+      <section className="section" aria-labelledby="sub-h">
         <div className="wrap narrow">
           <p className="eyebrow">One subscription</p>
           <h2 id="sub-h">Access follows the plan, not a blanket login</h2>

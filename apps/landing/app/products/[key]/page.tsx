@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { Check, External } from "@/components/Icons";
 import { PageHero, SiteFrame } from "@/components/SiteFrame";
+import { Screenshot } from "@/components/Screenshot";
+import { ProductShot } from "@/components/ProductShot";
 import { productByKey, products, type ModuleKey } from "@/lib/site";
 
 const keys = new Set(products.map((p) => p.key));
@@ -26,6 +28,7 @@ export default async function ProductPage({ params }: { params: Promise<{ key: s
     <SiteFrame>
       <div className={`m-${p.key}`}>
         <PageHero eyebrow={p.eyebrow} title={p.position} lede={p.summary} />
+        <div className="wrap product-hero-shot"><ProductShot m={p.key} /></div>
         <section className="section">
           <div className="wrap">
             <p className="dim lede-sm">{p.value}</p>
@@ -37,7 +40,29 @@ export default async function ProductPage({ params }: { params: Promise<{ key: s
             </ul>
           </div>
         </section>
-        <section className="section section-band">
+        <section className="section section-band" aria-labelledby="in-hub-h">
+          <div className="wrap tour-row">
+            <div className="tour-copy">
+              <p className="eyebrow">In your account</p>
+              <h2 id="in-hub-h">{p.name}, right next to everything else</h2>
+              <p className="dim">
+                Your {p.name} plan and access live in the same Omni Force Vector account as the rest of your tools, alongside your team and billing.
+              </p>
+              <p className="fine-print">
+                {p.key === "workforce"
+                  ? "Workforce 2.0 is downloaded from its own site; your plan and licence keys stay in your account."
+                  : `${p.name} keeps its own login for now.`}
+              </p>
+            </div>
+            <Screenshot
+              name={`module-${p.key}`}
+              alt={`The ${p.name} page in the Omni Force Vector hub with plan and access details`}
+              caption="Sample data shown."
+              sizes="(max-width: 1080px) 100vw, 680px"
+            />
+          </div>
+        </section>
+        <section className="section">
           <div className="wrap split">
             <div>
               <h2>Where it is used</h2>
@@ -55,7 +80,7 @@ export default async function ProductPage({ params }: { params: Promise<{ key: s
             </div>
           </div>
         </section>
-        <section className="section">
+        <section className="section section-band">
           <div className="wrap narrow">
             <h2>Omni Force Vector access</h2>
             <p className="dim">{p.access}</p>

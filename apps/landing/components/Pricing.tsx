@@ -5,7 +5,7 @@ export function Pricing({ compact = false }: { compact?: boolean }) {
   const rows = compact ? publicPlans.filter((p) => ["dir_scout", "dir_recreational", "wsso_starter_month", "wf_single_license", "bundle_dir_wsso_month"].includes(p.code)) : publicPlans;
   return (
     <div className="price-block">
-      <div className="table-wrap">
+      <div className="table-wrap plans-wrap">
         <table className="plans">
           <caption className="visually-hidden">Configured Omni Force Vector plans</caption>
           <thead>
@@ -22,11 +22,11 @@ export function Pricing({ compact = false }: { compact?: boolean }) {
             {rows.map((p) => (
               <tr key={p.code}>
                 <th scope="row">{p.name}</th>
-                <td>{p.modules}</td>
-                <td>{p.access}</td>
-                <td>{p.limits}</td>
-                {!compact && <td>{p.billing}</td>}
-                <td>{p.price}</td>
+                <td data-label="Modules">{p.modules}</td>
+                <td data-label="Access">{p.access}</td>
+                <td data-label="Limits">{p.limits}</td>
+                {!compact && <td data-label="Billing">{p.billing}</td>}
+                <td data-label="Price" className="price-cell">{p.price}</td>
               </tr>
             ))}
           </tbody>

@@ -150,6 +150,8 @@ details > summary { cursor: pointer; }
 .wordmark { display: inline-flex; align-items: center; line-height: 0; color: var(--fg); }
 .wordmark img { width: auto; height: 88px; display: block; max-width: 220px; object-fit: contain; }
 .topbar-brand .wordmark img { height: 48px; }
+/* the logo PNG has its own near-black background: blend it into dark surfaces */
+:root:not([data-theme="light"]) .wordmark img { mix-blend-mode: lighten; }
 .avatar {
   width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none;
   background: var(--brand); color: var(--brand-ink); font: 700 .76rem var(--f-display);
