@@ -185,6 +185,27 @@ test("organization context: users with only seat access must pick the organizati
   assert.equal(Number(acc.seats_assigned), 2);
   const none = (await t.one("select public.integration_access($1, $2, 'wsso-org-unknown') as r", [client, bossOf])).r;
   assert.deepEqual([none.active, none.reason], [false, "organization_not_linked"]);
+
+  // a member may confirm the workspace the organization is already linked to, but not point it elsewhere
+  const workerOf = (await t.one("select omniforce_id from profiles where id = $1", [worker])).omniforce_id;
+  l = (await t.one("select public.integration_link_identity($1, $2, 'wsso-user-w', 'wsso-org-crew') as r", [client, workerOf])).r;
+  assert.deepEqual([l.ok, l.organization_link], [true, "linked"]);
+  l = (await t.one("select public.integration_link_identity($1, $2, 'wsso-user-w', 'wsso-org-other') as r", [client, workerOf])).r;
+  assert.equal(l.error, "organization_link_requires_admin");
+  l = (await t.one("select public.integration_link_identity($1, $2, 'wsso-user-b', 'wsso-org-other') as r", [client, bossOf])).r;
+  assert.equal(l.error, "organization_already_linked_to_other_account");
+  assert.equal((await t.one("select external_org_id from organization_links where organization_id = $1", [org.id])).external_org_id, "wsso-org-crew");
+});
+
+test("an organization workspace can't be reported from a personal sign-in", async () => {
+  const solo = await t.user("solo@x.test");
+  await t.q("insert into entitlements (user_id, module_key, plan_id, status, source) values ($1, 'wsso', $2, 'active', 'admin')", [solo, await plan(t, "wsso_business_month")]);
+  const a = await issue({ u: solo });
+  assert.ok((await consume(a.code, a.verifier)).claims);
+  const of = (await t.one("select omniforce_id from profiles where id = $1", [solo])).omniforce_id;
+  const l = (await t.one("select public.integration_link_identity($1, $2, 'wsso-user-s', 'wsso-org-x') as r", [client, of])).r;
+  assert.equal(l.error, "organization_context_required");
+  assert.equal((await t.q("select * from identity_links where user_id = $1", [solo])).length, 0);
 });
 
 test("apps can only link users who just signed in through OmniForce", async () => {

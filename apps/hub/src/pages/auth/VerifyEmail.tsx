@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { auth } from "../../lib/api";
+import { selfServeBilling } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthProvider";
 import { Alert, Button, Icon } from "../../components/ui";
 import { StepsBar } from "./Signup";
@@ -47,7 +48,7 @@ export function VerifyEmail() {
       await auth.verifyOtp(email, code);
       await refresh();
       const plan = params.get("plan");
-      nav(`/plans${plan ? `?plan=${encodeURIComponent(plan)}` : ""}`, { replace: true });
+      nav(selfServeBilling() ? `/plans${plan ? `?plan=${encodeURIComponent(plan)}` : ""}` : "/app", { replace: true });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "That code didn't work. Check the latest email and try again.");
     } finally {

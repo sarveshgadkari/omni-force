@@ -3,7 +3,8 @@ import { hasAccess, useAuth } from "../../auth/AuthProvider";
 import { account, orgs } from "../../lib/api";
 import { date, moduleLabel, rel } from "../../lib/format";
 import type { ModuleKey } from "../../lib/types";
-import { Button, Empty, Icon, ModuleIcon, Pill, Skeleton, SsoPill, StatusPill, useLoad } from "../../components/ui";
+import { selfServeBilling } from "../../lib/supabase";
+import { Alert, Button, Empty, Icon, ModuleIcon, Pill, Skeleton, SsoPill, StatusPill, useLoad } from "../../components/ui";
 import { roleLabel } from "./Organizations";
 
 export const blurb: Record<ModuleKey, string> = {
@@ -32,13 +33,19 @@ export function Overview() {
           <div className="idcard"><span className="dim small">Omni Force Vector ID</span><strong>{profile.omniforce_id}</strong></div>
           <div className="quick">
             <Link to="/app/orgs" className="btn btn-ghost btn-sm"><Icon name="building" size={15} />Organizations</Link>
-            <Link to="/plans" className="btn btn-soft btn-sm"><Icon name="plus" size={15} />Add a product</Link>
+            {selfServeBilling() && <Link to="/plans" className="btn btn-soft btn-sm"><Icon name="plus" size={15} />Add a product</Link>}
           </div>
         </div>
       </section>
 
+      {!selfServeBilling() && access.length === 0 && (
+        <Alert tone="info" title="Your account is ready">
+          An Omni Force Vector administrator will give you access to your products. They appear here as soon as that's done, and you open them from this dashboard.
+        </Alert>
+      )}
+
       <section aria-labelledby="products-h" className="stack">
-        <div className="row-between"><h2 id="products-h" className="h-section">Your products</h2><Link to="/app/billing" className="small">Plans and billing</Link></div>
+        <div className="row-between"><h2 id="products-h" className="h-section">Your products</h2><Link to="/app/billing" className="small">{selfServeBilling() ? "Plans and billing" : "Billing"}</Link></div>
         <div className="tiles">
           {(["directory", "wsso", "workforce"] as ModuleKey[]).map((m) => {
             const all = access.filter((x) => x.module_key === m);
@@ -48,7 +55,7 @@ export function Overview() {
               <article key={m} className={`tile m-${m} ${e ? "" : "tile-off"}`} aria-label={moduleLabel[m]}>
                 <header>
                   <span className="tile-icon"><ModuleIcon m={m} size={22} /></span>
-                  {e ? <StatusPill s={e.status} /> : <Pill>Not in plan</Pill>}
+                  {e ? <StatusPill s={e.status} /> : <Pill>{selfServeBilling() ? "Not in plan" : "No access yet"}</Pill>}
                 </header>
                 <div className="stack-xs">
                   <h3>{moduleLabel[m]}</h3>
@@ -62,8 +69,10 @@ export function Overview() {
                 <div className="tile-actions">
                   {e ? (
                     <Link to={`/app/m/${m}`} className="btn btn-primary">{m === "workforce" ? "Manage" : `Open ${moduleLabel[m]}`}</Link>
-                  ) : (
+                  ) : selfServeBilling() ? (
                     <Link to={`/plans?module=${m}`} className="btn btn-ghost">Add to plan</Link>
+                  ) : (
+                    <Link to={`/app/m/${m}`} className="btn btn-ghost">How to get access</Link>
                   )}
                   {mod?.app_url && <a className="btn btn-ghost" href={mod.app_url} target="_blank" rel="noopener noreferrer" aria-label={`Visit ${moduleLabel[m]} site (opens in a new tab)`}>Visit site <Icon name="external" size={14} /></a>}
                 </div>
@@ -99,7 +108,9 @@ export function Overview() {
               <div><dt>{next.cancel_at_period_end ? "Ends" : "Renews"}</dt><dd className="mono">{date(next.current_period_end)}</dd></div>
               <div><dt>Includes</dt><dd>{next.items.map((i) => i.plan.name).join(", ")}</dd></div>
             </dl>
-          ) : <Empty icon="card" title="No paid plan" action={<Link to="/plans" className="btn btn-soft btn-sm">See plans</Link>}>You're on the free Directory plan.</Empty>}
+          ) : selfServeBilling()
+            ? <Empty icon="card" title="No paid plan" action={<Link to="/plans" className="btn btn-soft btn-sm">See plans</Link>}>You're on the free Directory plan.</Empty>
+            : <Empty icon="card" title="Nothing to pay here">Access to products is given and billed by your Omni Force Vector administrator.</Empty>}
         </section>
       </div>
 
@@ -123,7 +134,7 @@ export function Overview() {
         {links.data?.length === 0 && <Empty icon="link" title="Nothing linked yet">Your Directory and WSSO accounts are linked when their single sign-on goes live. Until then, keep using their own logins.</Empty>}
       </section>
 
-      {!hasAccess(access, "wsso") && (
+      {selfServeBilling() && !hasAccess(access, "wsso") && (
         <section className="upsell">
           <div className="stack-xs"><strong>Run your team in WSSO</strong><span className="dim small">From $99/mo for 10 seats, with a 14-day trial.</span></div>
           <Link to="/plans?module=wsso"><Button variant="ghost">See WSSO plans</Button></Link>

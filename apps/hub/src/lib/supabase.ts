@@ -12,4 +12,10 @@ export const supabase: SupabaseClient | null = DEMO
       auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
     });
 
+/**
+ * Customers buy plans themselves (Stripe checkout) only when VITE_SELF_SERVE_BILLING=1.
+ * Default: people create an account, and a platform admin gives them access to products.
+ */
+export const selfServeBilling = () => import.meta.env.VITE_SELF_SERVE_BILLING === "1";
+
 export const LANDING_URL = (import.meta.env.VITE_LANDING_URL as string | undefined) ?? "/";

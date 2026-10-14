@@ -21,9 +21,10 @@ wsso-changes/       superseded early draft for WSSO; do not apply (see its READM
 | Stripe billing for individuals and organizations | Built; needs Stripe prices and a webhook |
 | Identity / organization link model and admin review | Built and tested |
 | "Sign in with OmniForce" interface for apps (OIDC code + PKCE) | Built and tested locally; **no app is registered** |
-| **WSSO single sign-on** | **Not live.** WSSO hasn't built its side; nothing changed in WSSO |
+| **WSSO single sign-on** | Built on both sides and tested locally; **not live** until deployed and switched on ([runbook](docs/WSSO_INTEGRATION.md#go-live-runbook)) |
 | **Drone Directory single sign-on** | **Not live.** BD's SSO capability is unverified |
-| Provisioning to WSSO / Directory | Code present, **disabled**; contracts unverified |
+| Access sync to WSSO | Built and tested (signed events from the sync worker); **disabled** until switched on |
+| Provisioning to Directory | Code present, **disabled**; BD contract unverified |
 | Workforce 2.0 licences + MCP | Built (unchanged) |
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the model, and the decisions that affect the WSSO integration.

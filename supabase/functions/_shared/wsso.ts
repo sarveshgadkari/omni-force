@@ -1,5 +1,6 @@
-// Server-to-server client for a WSSO provisioning endpoint — NOT BUILT on the WSSO side.
-// The request shape below is a proposal (docs/WSSO_INTEGRATION.md). Only used when
+// Server-to-server client for WSSO's access-events endpoint (POST /api/omniforce/events).
+// WSSO creates accounts and workspaces itself on first sign-in through OmniForce; after
+// that OmniForce only tells it when access changes. Only used when
 // modules.provisioning_status for 'wsso' is 'enabled'.
 // Every request is signed: X-OmniForce-Signature = hex(HMAC-SHA256(secret, `${timestamp}.${body}`)).
 import { requireSecret } from "./errors.ts";
@@ -10,16 +11,26 @@ export async function hmacHex(secret: string, msg: string) {
   return Array.from(new Uint8Array(sig)).map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-export type WssoAction =
-  | { action: "upsert_member"; omniforce_user_id: string; email: string; first_name: string; last_name: string; company_name: string | null; plan_code: string | null; seats: number | null; status: "active" | "trialing" | "past_due" | "canceled"; valid_until: string | null }
-  | { action: "disable_member"; omniforce_user_id: string }
-  | { action: "enable_member"; omniforce_user_id: string };
+/** Which WSSO account(s) a member event applies to. WSSO ignores it for anyone whose workspace is elsewhere. */
+export type WssoScope =
+  | { scope: "account" }                                                            // the whole OmniForce account
+  | { scope: "personal" }                                                           // their personal workspace
+  | { scope: "organization"; omniforce_org_id: string; external_org_id?: string };  // that organization's workspace
 
-export async function wssoProvision(body: WssoAction & { idempotency_key: string }) {
-  const url = Deno.env.get("WSSO_PROVISION_URL") ?? "";
-  if (!/^https:\/\//.test(url)) throw new Error("WSSO_PROVISION_URL is not configured.");
-  const secret = requireSecret("WSSO_SHARED_SECRET");
-  const raw = JSON.stringify(body);
+export type WssoOrgTarget = { omniforce_org_id: string; external_org_id?: string };
+export type WssoAccess = { plan_ref: string | null; seats: number | null };
+
+export type WssoEvent =
+  | ({ event: "access.updated"; access: WssoAccess } & ({ sub: string } | WssoOrgTarget))
+  | ({ event: "access.revoked" } & ({ sub: string } | WssoOrgTarget))
+  | ({ event: "member.enabled" | "member.disabled"; sub: string } & WssoScope);
+
+/** Send one event. event_id makes it idempotent on the WSSO side (retries are safe). */
+export async function wssoEvent(event_id: string, body: WssoEvent) {
+  const url = Deno.env.get("WSSO_EVENTS_URL") ?? "";
+  if (!/^https:\/\//.test(url)) throw new Error("WSSO_EVENTS_URL is not configured.");
+  const secret = requireSecret("WSSO_EVENTS_SECRET");
+  const raw = JSON.stringify({ event_id, ...body });
   const ts = Math.floor(Date.now() / 1000).toString();
   const res = await fetch(url, {
     method: "POST",
@@ -29,8 +40,7 @@ export async function wssoProvision(body: WssoAction & { idempotency_key: string
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(`WSSO ${res.status}: ${data?.error ?? "no body"}`);
-  if (typeof data?.wsso_user_id !== "string") throw new Error("WSSO: response has no wsso_user_id");
-  return data as { wsso_user_id: string; company_id: string | null };
+  return { event: body.event, ...(data?.skipped ? { skipped: String(data.skipped) } : {}) };
 }
 
 /** Verify an inbound HMAC-signed request (5-minute window). */

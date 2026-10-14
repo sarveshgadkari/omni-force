@@ -199,8 +199,9 @@ test("with provisioning enabled, unverified users are only provisioned after ver
   const o = await t.user("orgsync@x.test");
   const org = await orgWith(o, "Sync Co");
   await grantOrg(org, "directory", "dir_employer_month");
-  const ev = await t.q("select event_type from integration_events where organization_id = $1", [org]);
-  assert.deepEqual(ev.map((r) => r.event_type), ["organization.entitlement_changed"]);
+  const ev = await t.q("select event_type from integration_events where organization_id = $1 order by id", [org]);
+  // the owner's automatic seat, then the organization's entitlement
+  assert.deepEqual(ev.map((r) => r.event_type), ["member.seat_assigned", "organization.entitlement_changed"]);
   await t.q("update modules set provisioning_status = 'disabled' where key = 'directory'");
 });
 

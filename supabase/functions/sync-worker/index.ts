@@ -3,7 +3,7 @@
 import { json } from "../_shared/cors.ts";
 import { HttpError, requireSecret, safeEqual } from "../_shared/errors.ts";
 import { admin } from "../_shared/db.ts";
-import { provision } from "../_shared/provision.ts";
+import { provision, syncWsso } from "../_shared/provision.ts";
 
 const MAX_ATTEMPTS = 8;
 const BATCH = 25;
@@ -22,8 +22,9 @@ Deno.serve(async (req) => {
   const enabled = new Set((mods ?? []).filter((m) => m.provisioning_status === "enabled" && m.is_active).map((m) => m.key));
 
   const results: { id: number; ok: boolean }[] = [];
-  // collapse duplicates: only the newest event per owner+module actually calls out
-  const owner = (e: { user_id: string | null; organization_id: string | null; module_key: string }) => `${e.user_id ?? e.organization_id}:${e.module_key}`;
+  // collapse duplicates: only the newest event per target+module actually calls out
+  // (handlers read the current state, so the newest event carries every earlier change)
+  const owner = (e: { user_id: string | null; organization_id: string | null; module_key: string }) => `${e.user_id ?? "-"}:${e.organization_id ?? "-"}:${e.module_key}`;
   const latest = new Map<string, number>();
   for (const e of events ?? []) latest.set(owner(e), e.id);
 
@@ -37,8 +38,8 @@ Deno.serve(async (req) => {
       await done({ status: "dead", last_error: `provisioning for ${e.module_key} is disabled` });
       continue;
     }
-    if (!e.user_id) {
-      await done({ status: "dead", last_error: `no handler for ${e.event_type} yet (organization provisioning is not defined)` });
+    if (e.module_key !== "wsso" && (!e.user_id || e.organization_id)) {
+      await done({ status: "dead", last_error: `no handler for ${e.event_type} yet (organization provisioning for ${e.module_key} is not defined)` });
       continue;
     }
     // claim it
@@ -48,7 +49,7 @@ Deno.serve(async (req) => {
     if (!claimed) continue;
 
     try {
-      const r = await provision(e.user_id, e.module_key, e.event_type, `evt-${e.id}`);
+      const r = e.module_key === "wsso" ? await syncWsso(e) : await provision(e.user_id, e.module_key, e.event_type, `evt-${e.id}`);
       await done({ status: "sent", last_error: null, response: r ?? {} });
       results.push({ id: e.id, ok: true });
     } catch (err) {

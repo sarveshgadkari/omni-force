@@ -7,7 +7,7 @@
 type Db = { q: (sql: string, params?: unknown[]) => Promise<any[]> };
 
 // functions returning a set of rows (PostgREST returns an array for these)
-const SETOF = new Set(["module_access_for", "my_module_access", "org_members", "my_organizations", "org_modules", "paid_grants"]);
+const SETOF = new Set(["module_access_for", "my_module_access", "org_members", "my_organizations", "org_modules", "paid_grants", "org_module_access"]);
 
 export function fakeClient(db: Db, tokens: Map<string, string>) {
   const rpc = async (fn: string, args: Record<string, unknown>) => {

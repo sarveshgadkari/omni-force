@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { account, billing } from "../../lib/api";
-import { DEMO } from "../../lib/supabase";
+import { DEMO, selfServeBilling } from "../../lib/supabase";
 import { date, money, moduleLabel, planModules, planPrice } from "../../lib/format";
 import { Alert, Button, Empty, Icon, LoadError, PageHeader, Pill, Skeleton, SkeletonRows, StatusPill, useLoad } from "../../components/ui";
 
@@ -37,10 +37,10 @@ export function Billing() {
     <div className="page">
       <PageHeader
         eyebrow="Billing"
-        title="Plans and billing"
-        description="Your personal subscription. Organization plans are billed to the organization."
+        title={selfServeBilling() ? "Plans and billing" : "Billing"}
+        description={selfServeBilling() ? "Your personal subscription. Organization plans are billed to the organization." : "Products are given to you by an Omni Force Vector administrator. Any invoices for your account appear here."}
         actions={<>
-          <Button variant="ghost" onClick={() => nav("/plans")}><Icon name="layers" size={15} />Add or change products</Button>
+          {selfServeBilling() && <Button variant="ghost" onClick={() => nav("/plans")}><Icon name="layers" size={15} />Add or change products</Button>}
           <Button onClick={portal} loading={busy}><Icon name="card" size={15} />Payment method and invoices</Button>
         </>}
       />
@@ -56,7 +56,9 @@ export function Billing() {
         <div className="panel-head"><h3>Subscriptions</h3></div>
         {subs.error && <LoadError message={subs.error} onRetry={subs.reload} />}
         {subs.loading && <div className="stack-sm"><Skeleton h={18} w="40%" /><Skeleton h={60} /></div>}
-        {subs.data?.length === 0 && <Empty icon="card" title="No paid subscription" action={<Link to="/plans" className="btn btn-soft btn-sm">See plans</Link>}>You're on the free Directory Scout plan.</Empty>}
+        {subs.data?.length === 0 && (selfServeBilling()
+          ? <Empty icon="card" title="No paid subscription" action={<Link to="/plans" className="btn btn-soft btn-sm">See plans</Link>}>You're on the free Directory Scout plan.</Empty>
+          : <Empty icon="card" title="No subscription to pay">Your access is managed by your Omni Force Vector administrator.</Empty>)}
         {subs.data?.map((s) => (
           <div key={s.id} className="sub">
             <div className="row-between wrap-gap">

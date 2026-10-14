@@ -1,13 +1,16 @@
-// Provision / update a user in a cloud module and record the identity link.
+// Keep cloud modules in step with access decided in OmniForce.
 // Only runs for modules whose provisioning an admin has enabled (after the
 // module's API contract was verified). Linking rules live in SQL
 // (record_identity_link): an email match never links by itself.
+//   Directory: OmniForce creates/updates the member through the BD API.
+//   WSSO:      WSSO creates the account on first sign-in through OmniForce; we only
+//              send the current access state (idempotent, safe to repeat).
 import { admin, rpc } from "./db.ts";
 import { directoryup } from "./directoryup.ts";
-import { wssoProvision } from "./wsso.ts";
+import { wssoEvent, type WssoOrgTarget } from "./wsso.ts";
 
 type Mod = "directory" | "wsso";
-type Access = { module_key: string; via: string; status: string; plan_ref: string | null; seats: number | null; valid_until: string | null };
+type Access = { module_key: string; via: string; organization_id: string | null; status: string; plan_ref: string | null; seats: number | null; valid_until: string | null };
 
 async function context(userId: string, module: Mod) {
   const [{ data: p }, { data: link }, { data: mod }, { data: au }] = await Promise.all([
@@ -75,18 +78,71 @@ export async function provision(userId: string, module: Mod, eventType = "member
     return { external_id: memberId };
   }
 
-  // WSSO (individual accounts only; organization provisioning is not defined yet)
-  if (!active) {
-    if (current?.status === "linked") await wssoProvision({ action: "disable_member", omniforce_user_id: p.omniforce_id, idempotency_key: idem });
-    await admin.from("identity_links").update({ status: "disabled", last_synced_at: new Date().toISOString() })
-      .eq("user_id", userId).eq("module_key", "wsso").eq("status", "linked");
-    return null;
+  throw new Error("WSSO is synced with syncWsso()");
+}
+
+// ─────────────────────────────────────────────── WSSO
+
+type QueuedEvent = { id: number; event_type: string; user_id: string | null; organization_id: string | null };
+
+async function orgTarget(orgId: string): Promise<WssoOrgTarget> {
+  const { data } = await admin.from("organization_links").select("external_org_id")
+    .eq("organization_id", orgId).eq("module_key", "wsso").eq("status", "linked").maybeSingle();
+  return { omniforce_org_id: orgId, ...(data?.external_org_id ? { external_org_id: data.external_org_id as string } : {}) };
+}
+
+const memberEvent = (on: boolean) => (on ? "member.enabled" : "member.disabled") as "member.enabled" | "member.disabled";
+
+/**
+ * One queued event → the WSSO events that restate the current access. Reads state
+ * at send time, so a late or repeated event can never undo a newer change.
+ *   organization only        → workspace access (plan, seats) or revoked
+ *   person + organization    → that person in that organization's workspace
+ *   person                   → account disabled: blocked everywhere; otherwise their personal
+ *                              workspace and their place in every organization's workspace
+ */
+export async function syncWsso(e: QueuedEvent) {
+  const idem = `evt-${e.id}`;
+
+  if (!e.user_id) {
+    if (!e.organization_id) return { skipped: "no_target" };
+    const [a] = await rpc<{ live: boolean; plan_ref: string | null; seats: number | null }[]>("org_module_access", { p_org: e.organization_id, p_module: "wsso" });
+    const target = await orgTarget(e.organization_id);
+    return a?.live
+      ? await wssoEvent(idem, { event: "access.updated", ...target, access: { plan_ref: a.plan_ref, seats: a.seats } })
+      : await wssoEvent(idem, { event: "access.revoked", ...target });
   }
-  const r = await wssoProvision({
-    action: "upsert_member", idempotency_key: idem,
-    omniforce_user_id: p.omniforce_id, email: p.email, first_name: p.first_name, last_name: p.last_name, company_name: p.company_name,
-    plan_code: own!.plan_ref, seats: own!.seats, status: own!.status as "active", valid_until: own!.valid_until,
-  });
-  await recordLink(userId, "wsso", r.wsso_user_id, "provisioned", r.company_id);
-  return { external_id: r.wsso_user_id };
+
+  const { data: p } = await admin.from("profiles").select("omniforce_id, status").eq("id", e.user_id).maybeSingle();
+  if (!p) return { skipped: "profile_not_found" };
+  const sub = p.omniforce_id as string;
+
+  if (p.status !== "active") {
+    // module_access_for() already returns nothing for a disabled account; block sign-in in WSSO too
+    return await wssoEvent(idem, { event: "member.disabled", sub, scope: "account" });
+  }
+
+  const wsso = (await rpc<Access[]>("module_access_for", { p_user: e.user_id })).filter((a) => a.module_key === "wsso");
+  const viaOrg = (orgId: string) => wsso.some((a) => a.via === "organization" && a.organization_id === orgId);
+
+  if (e.organization_id) {
+    return await wssoEvent(idem, { event: memberEvent(viaOrg(e.organization_id)), sub, scope: "organization", ...(await orgTarget(e.organization_id)) });
+  }
+
+  // Restate the person everywhere (the worker collapses a burst of events into the newest one):
+  // their personal workspace, and their membership in each organization's workspace.
+  const own = wsso.find((a) => a.via === "individual");
+  const sent = [
+    own
+      ? await wssoEvent(`${idem}:personal`, { event: "access.updated", sub, access: { plan_ref: own.plan_ref, seats: own.seats } })
+      : await wssoEvent(`${idem}:personal`, { event: "access.revoked", sub }),
+    await wssoEvent(`${idem}:member`, { event: memberEvent(!!own), sub, scope: "personal" }),
+  ];
+  const { data: orgs } = await admin.from("organization_members").select("organization_id").eq("user_id", e.user_id);
+  for (const { organization_id } of orgs ?? []) {
+    sent.push(await wssoEvent(`${idem}:org:${organization_id}`, { event: memberEvent(viaOrg(organization_id)), sub, scope: "organization", ...(await orgTarget(organization_id)) }));
+  }
+  await admin.from("identity_links").update({ last_synced_at: new Date().toISOString(), last_error: null })
+    .eq("user_id", e.user_id).eq("module_key", "wsso").eq("status", "linked");
+  return { sent };
 }

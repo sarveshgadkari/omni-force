@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // Smoke tests: render the real app in demo mode (no Supabase env) at each new or
 // changed route and check what the user sees. Run: npm test
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthProvider";
@@ -12,7 +12,7 @@ const at = (path: string) =>
   render(<MemoryRouter initialEntries={[path]}><AuthProvider><App /></AuthProvider></MemoryRouter>);
 const find = (t: string | RegExp) => screen.findAllByText(t, undefined, { timeout: 3000 }).then((x) => x[0]);
 
-afterEach(cleanup);
+afterEach(() => { cleanup(); vi.unstubAllEnvs(); });
 
 describe("hub (demo mode)", () => {
   it("dashboard shows organization access and that Directory/WSSO SSO is not configured", async () => {
@@ -61,7 +61,19 @@ describe("hub (demo mode)", () => {
     await find("Join Skyline Aerial Survey");
   });
 
-  it("buying for an organization", async () => {
+  it("default: no purchase paths; an admin gives access", async () => {
+    at("/plans?org=o-1");
+    await find(/Good to see you, Avery/);
+    expect(screen.queryByText("Add a product")).toBeNull();
+    expect(screen.queryByText(/See .* plans/)).toBeNull();
+    cleanup();
+    at("/app/billing");
+    expect(await screen.findByRole("heading", { name: "Billing", level: 1 })).toBeTruthy();
+    expect(screen.queryByText("Add or change products")).toBeNull();
+  });
+
+  it("with self-serve billing switched on: buying for an organization", async () => {
+    vi.stubEnv("VITE_SELF_SERVE_BILLING", "1");
     at("/plans?org=o-1");
     await find("Pick products for Skyline Aerial Survey");
   });

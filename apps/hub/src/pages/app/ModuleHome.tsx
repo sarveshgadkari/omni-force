@@ -7,6 +7,7 @@ import type { Installation, ModuleKey } from "../../lib/types";
 import { Alert, Button, CopyButton, Empty, Field, Icon, Modal, ModuleIcon, Pill, SkeletonRows, SsoPill, StatusPill, useLoad } from "../../components/ui";
 import { SsoUnavailable } from "../../components/SsoUnavailable";
 import { blurb } from "./Overview";
+import { selfServeBilling } from "../../lib/supabase";
 
 export function ModuleHome() {
   const { module = "directory" } = useParams();
@@ -57,11 +58,18 @@ export function ModuleHome() {
       {err && <Alert>{err}</Alert>}
 
       {!a ? (
-        <section className="panel locked">
-          <h3>{moduleLabel[m]} isn't in your plan yet</h3>
-          <p className="dim">Add it to your own subscription, or ask an organization you belong to for a seat.</p>
-          <Link to={`/plans?module=${m}`}><Button>See {moduleLabel[m]} plans</Button></Link>
-        </section>
+        selfServeBilling() ? (
+          <section className="panel locked">
+            <h3>{moduleLabel[m]} isn't in your plan yet</h3>
+            <p className="dim">Add it to your own subscription, or ask an organization you belong to for a seat.</p>
+            <Link to={`/plans?module=${m}`}><Button>See {moduleLabel[m]} plans</Button></Link>
+          </section>
+        ) : (
+          <section className="panel locked">
+            <h3>You don't have access to {moduleLabel[m]} yet</h3>
+            <p className="dim">An Omni Force Vector administrator gives access. If you work in an organization, its owner or an admin can give you a seat. Once you have access, {moduleLabel[m]} opens from here.</p>
+          </section>
+        )
       ) : (
         <div className="two-col">
           <section className="panel">

@@ -2,7 +2,7 @@
 
 OmniForce is the central platform for identity, sign-in, organizations, memberships, module access, subscriptions, payments and platform administration. The modules (WSSO, the Drone Directory, Workforce 2.0) keep their own data and their own in-app permissions.
 
-**Status (2026-10-10).** The hub's data model, access rules and authentication interface are built and tested locally. **Single sign-on to WSSO and to the Drone Directory is not live.** Both modules start with `sso_status = not_configured` and `provisioning_status = disabled`. Nothing is sent to either module, and the hub tells users to keep using each module's own login.
+**Status (2026-10-14).** The hub's data model, access rules and authentication interface are built and tested locally. WSSO's side of the integration (sign-in through OmniForce, workspace creation, signed access events) is now built and tested locally too; see [WSSO_INTEGRATION.md](WSSO_INTEGRATION.md). **Single sign-on to WSSO and to the Drone Directory is not live.** Both modules start with `sso_status = not_configured` and `provisioning_status = disabled`. Nothing is sent to either module, and the hub tells users to keep using each module's own login.
 
 ## 1. Who is who
 
@@ -81,7 +81,9 @@ These are the choices that WSSO's integration will have to fit. Each can be revi
 6. **Seats in OmniForce are an upper bound for OmniForce-authorized users.** OmniForce enforces `assigned seats ≤ plan seats` for people it lets in. WSSO still counts its own active users, including any local-login users, against `omniforce_access.seats`.
 7. **Roles don't cross over.** An OmniForce `owner`/`admin` is not automatically a WSSO admin. WSSO decides in-app roles. The token only says the person may enter, and their OmniForce organization role, for display or first-time bootstrap.
 8. **Billing moves organization by organization.** A WSSO organization billed by WSSO's own Stripe today stays that way until it's linked and has an OmniForce subscription. WSSO needs its own flag for that cut-over. No WSSO billing was changed in this phase.
-9. **Provisioning is off and undefined for organizations.** OmniForce queues nothing for WSSO until an admin enables provisioning. The individual-member request shape in `_shared/wsso.ts` is a proposal. Organization provisioning events are dead-lettered with "no handler" until the contract is agreed.
+9. **WSSO creates accounts itself; OmniForce only syncs access.** WSSO creates the workspace and user on first sign-in, so OmniForce never creates WSSO accounts. Once provisioning is enabled, the sync worker sends WSSO signed events that restate current access: workspace plan and seats, and members enabled or blocked. The Directory still has no organization handler; those events are dead-lettered.
+
+**As built for WSSO (2026-10-14):** decisions 1, 2, 4 to 8 hold as written. The join key is a new `profiles.omniforce_user_id` column in WSSO. Workspaces created through OmniForce are flagged `billing_source = 'omniforce'`. Decision 3 (connecting an existing WSSO account) isn't built: a matching email is refused, never merged.
 
 ## 6. Where things live
 

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useAuth } from "../../auth/AuthProvider";
 import { billing, orgs } from "../../lib/api";
-import { DEMO } from "../../lib/supabase";
+import { DEMO, selfServeBilling } from "../../lib/supabase";
 import { date, moduleLabel } from "../../lib/format";
 import type { ModuleKey, OrgInvitation, OrgMember, OrgRole } from "../../lib/types";
 import {
@@ -57,7 +57,7 @@ export function OrganizationDetail() {
         title={org.name}
         description={<>You're {myRole === "owner" || myRole === "admin" ? "an" : "a"} <strong className="fg">{roleLabel[myRole!].toLowerCase()}</strong> · <span className="mono">{org.slug}</span></>}
         actions={<>
-          {canBill && <Link to={`/plans?org=${org.id}`} className="btn btn-ghost"><Icon name="plus" size={15} />Buy products</Link>}
+          {canBill && selfServeBilling() && <Link to={`/plans?org=${org.id}`} className="btn btn-ghost"><Icon name="plus" size={15} />Buy products</Link>}
           {canBill && (
             <Button variant="ghost" loading={busy === "portal"} onClick={() => act("portal", async () => {
               const url = await billing.portal(org.id);
@@ -74,9 +74,13 @@ export function OrganizationDetail() {
       <section className="panel">
         <div className="panel-head"><h3><Icon name="layers" size={17} />Products</h3></div>
         {mods.loading ? <Spinner label="Loading products" /> : mods.data?.length === 0 ? (
-          <Empty icon="layers" title="No products yet" action={canBill ? <Link to={`/plans?org=${org.id}`} className="btn btn-soft btn-sm">Buy a plan for the organization</Link> : undefined}>
-            {canBill ? "Buy a plan billed to the organization, then give members seats." : "An owner or billing member can buy them."}
-          </Empty>
+          selfServeBilling() ? (
+            <Empty icon="layers" title="No products yet" action={canBill ? <Link to={`/plans?org=${org.id}`} className="btn btn-soft btn-sm">Buy a plan for the organization</Link> : undefined}>
+              {canBill ? "Buy a plan billed to the organization, then give members seats." : "An owner or billing member can buy them."}
+            </Empty>
+          ) : (
+            <Empty icon="layers" title="No products yet">An Omni Force Vector administrator adds products to the organization. Then owners and admins give members seats here.</Empty>
+          )
         ) : (
           <div className="status-grid">
             {(mods.data ?? []).map((m) => (

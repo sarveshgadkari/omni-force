@@ -4,6 +4,7 @@ import { ModuleIcon } from "../components/ui";
 import { moduleLabel } from "../lib/format";
 import type { ModuleKey } from "../lib/types";
 import { Shell, UserMenu, type NavSection } from "./Shell";
+import { selfServeBilling } from "../lib/supabase";
 
 export { UserMenu };
 
@@ -21,12 +22,12 @@ export function ModuleSwitcher() {
             key={m}
             to={`/app/m/${m}`}
             className={({ isActive }) => `mswitch-item m-${m} ${isActive ? "is-active" : ""} ${ok ? "" : "is-locked"}`}
-            onClick={(e) => { if (!ok) { e.preventDefault(); nav(`/plans?module=${m}`); } }}
-            title={ok ? `${moduleLabel[m]} overview` : `Add ${moduleLabel[m]} to your plan`}
+            onClick={(e) => { if (!ok && selfServeBilling()) { e.preventDefault(); nav(`/plans?module=${m}`); } }}
+            title={ok ? `${moduleLabel[m]} overview` : selfServeBilling() ? `Add ${moduleLabel[m]} to your plan` : `No access to ${moduleLabel[m]} yet`}
           >
             <ModuleIcon m={m} size={16} />
             <span>{moduleLabel[m]}</span>
-            {!ok && <span className="lock" aria-label="Not in your plan">+</span>}
+            {!ok && selfServeBilling() && <span className="lock" aria-label="Not in your plan">+</span>}
           </NavLink>
         );
       })}
@@ -40,7 +41,7 @@ export function AppLayout() {
     { label: "Account", items: [
       { to: "/app", label: "Dashboard", icon: "home", end: true },
       { to: "/app/orgs", label: "Organizations", icon: "building" },
-      { to: "/app/billing", label: "Plans and billing", icon: "card" },
+      { to: "/app/billing", label: selfServeBilling() ? "Plans and billing" : "Billing", icon: "card" },
       { to: "/app/settings", label: "Profile", icon: "user" },
     ] },
     { label: "Modules", items: order.map((m) => ({ to: `/app/m/${m}`, label: moduleLabel[m], dotClass: `m-${m}` })) },

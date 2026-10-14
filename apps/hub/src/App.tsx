@@ -28,6 +28,7 @@ import { AdminPlans } from "./pages/admin/AdminPlans";
 import { AdminIntegrations } from "./pages/admin/AdminIntegrations";
 import { AdminInstallations } from "./pages/admin/AdminInstallations";
 import { AdminAudit } from "./pages/admin/AdminAudit";
+import { selfServeBilling } from "./lib/supabase";
 import { AdminOrganizations } from "./pages/admin/AdminOrganizations";
 import { AdminApps } from "./pages/admin/AdminApps";
 import { AdminLinks } from "./pages/admin/AdminLinks";
@@ -59,8 +60,8 @@ export function App() {
         <Route path="/reset-password" element={<ResetPassword />} />
       </Route>
 
-      <Route path="/plans" element={<RequireAuth><ChoosePlan /></RequireAuth>} />
-      <Route path="/checkout/success" element={<RequireAuth><CheckoutSuccess /></RequireAuth>} />
+      <Route path="/plans" element={<RequireAuth>{selfServeBilling() ? <ChoosePlan /> : <Navigate to="/app" replace />}</RequireAuth>} />
+      <Route path="/checkout/success" element={<RequireAuth>{selfServeBilling() ? <CheckoutSuccess /> : <Navigate to="/app" replace />}</RequireAuth>} />
       <Route path="/go" element={<RequireAuth><SmartRedirect /></RequireAuth>} />
       <Route path="/launch/:module" element={<RequireAuth><Launch /></RequireAuth>} />
       <Route path="/oauth/authorize" element={<RequireAuth><OAuthAuthorize /></RequireAuth>} />

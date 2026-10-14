@@ -29,6 +29,9 @@ coverage/
 # Vercel CLI local state
 .vercel/
 
+# WSSO is a separate repository (github.com/sarveshgadkari/wsso), checked out here for local work
+/WSSO/
+
 # written by `next dev` (Next 16.3+)
 apps/landing/AGENTS.md
 apps/landing/CLAUDE.md
