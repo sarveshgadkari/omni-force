@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { auth } from "../../lib/api";
+import { selfServeBilling } from "../../lib/supabase";
 import { Alert, Button, Field, PasswordInput } from "../../components/ui";
 
 /** 0–4: length, letters+numbers, mixed case, symbol or 14+ chars. */
@@ -26,8 +27,11 @@ export function StrengthMeter({ pw }: { pw: string }) {
   );
 }
 
+/** Sign-up steps: account, email, then plan and payment only when customers buy plans themselves. */
+export const signupSteps = () => (selfServeBilling() ? 4 : 2);
+
 export function StepsBar({ step }: { step: number }) {
-  return <div className="steps-bar" aria-hidden="true">{[1, 2, 3, 4].map((i) => <span key={i} className={i <= step ? "on" : ""} />)}</div>;
+  return <div className="steps-bar" aria-hidden="true">{Array.from({ length: signupSteps() }, (_, i) => i + 1).map((i) => <span key={i} className={i <= step ? "on" : ""} />)}</div>;
 }
 
 export function Signup() {
@@ -67,7 +71,7 @@ export function Signup() {
     <form onSubmit={submit} className="stack" noValidate>
       <div className="stack-sm">
         <StepsBar step={1} />
-        <p className="step-tag">Step 1 of 4 · Create account</p>
+        <p className="step-tag">Step 1 of {signupSteps()} · Create account</p>
         <h2>Create your Omni Force Vector account</h2>
         <p className="dim">One account for the Drone Directory, WSSO and Workforce 2.0.</p>
       </div>

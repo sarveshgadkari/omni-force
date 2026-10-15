@@ -29,7 +29,9 @@ export function Login() {
       nav(safe ? from : "/go", { replace: true });
     } catch (e) {
       const m = e instanceof Error ? e.message : "";
-      setErr(/confirm/i.test(m) ? "Verify your email first. We can resend the code." : "Email or password is incorrect.");
+      setErr(/confirm/i.test(m) ? "Verify your email first. We can resend the code."
+        : /invalid login credentials/i.test(m) || !m ? "Email or password is incorrect."
+        : `Couldn't sign you in: ${m}`);
     } finally {
       setBusy(false);
     }

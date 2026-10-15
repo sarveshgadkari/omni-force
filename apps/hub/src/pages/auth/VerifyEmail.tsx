@@ -4,7 +4,7 @@ import { auth } from "../../lib/api";
 import { selfServeBilling } from "../../lib/supabase";
 import { useAuth } from "../../auth/AuthProvider";
 import { Alert, Button, Icon } from "../../components/ui";
-import { StepsBar } from "./Signup";
+import { signupSteps, StepsBar } from "./Signup";
 
 export function VerifyEmail() {
   const [params] = useSearchParams();
@@ -60,7 +60,7 @@ export function VerifyEmail() {
     <form onSubmit={submit} className="stack">
       <div className="stack-sm">
         <StepsBar step={2} />
-        <p className="step-tag">Step 2 of 4 · Verify email</p>
+        <p className="step-tag">Step 2 of {signupSteps()} · Verify email</p>
         <span className="list-ico" aria-hidden="true"><Icon name="mail" /></span>
         <h2>Check your inbox</h2>
         <p className="dim">We sent a 6-digit code to <strong className="fg">{email || "your email"}</strong>. It expires in 10 minutes.</p>

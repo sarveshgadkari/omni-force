@@ -126,7 +126,9 @@ export const auth = {
   },
   onChange(cb: () => void) {
     if (DEMO) return () => {};
-    const { data } = sb().auth.onAuthStateChange(() => cb());
+    // Never call Supabase inside this callback: supabase-js holds its auth lock while it
+    // runs, so getUser() there waits forever (sign-in hangs). Run the callback afterwards.
+    const { data } = sb().auth.onAuthStateChange(() => { setTimeout(cb, 0); });
     return () => data.subscription.unsubscribe();
   },
 };
