@@ -6,7 +6,7 @@
 //   WSSO:      WSSO creates the account on first sign-in through OmniForce; we only
 //              send the current access state (idempotent, safe to repeat).
 import { admin, rpc } from "./db.ts";
-import { directoryup } from "./directoryup.ts";
+import { directoryup, DuplicateError, SecurityError } from "./directoryup.ts";
 import { wssoEvent, type WssoOrgTarget } from "./wsso.ts";
 
 type Mod = "directory" | "wsso";
@@ -43,6 +43,7 @@ export async function provision(userId: string, module: Mod, eventType = "member
   if (!enabled) throw new Error(`provisioning for ${module} is disabled`);
   if (!verified) return { skipped: "email_unverified" };
   if (current?.status === "pending_review") return { skipped: "link_pending_review" };
+  
   const active = !!own && p.status === "active" && eventType !== "member.disable";
 
   if (module === "directory") {
@@ -50,30 +51,36 @@ export async function provision(userId: string, module: Mod, eventType = "member
     let memberId = current?.status === "linked" ? (current.external_id as string) : undefined;
 
     if (!memberId) {
+      // 1. Check if this OmniForce user was already mapped to a Directory user (e.g. from an old run)
       const mine = await directoryup.findByOmniforceId(p.omniforce_id);
       if (mine) {
         memberId = String(mine.user_id);
         await recordLink(userId, "directory", memberId, "provisioned");
       } else {
-        const sameEmail = await directoryup.findByEmail(p.email);
-        if (sameEmail) {
-          if (sameEmail.omniforce_user_id && sameEmail.omniforce_user_id !== p.omniforce_id) {
-            throw new Error(`Directory member ${sameEmail.user_id} already belongs to ${sameEmail.omniforce_user_id}`);
-          }
-          await recordLink(userId, "directory", String(sameEmail.user_id), "verified_email");
-          return { skipped: "link_pending_review", candidate: String(sameEmail.user_id) };
-        }
         if (!active) return null;
-        // Two calls per signup: create the member, then write omniforce_user_id on that user_id.
-        const m = await directoryup.create({
-          email: p.email,
-          first_name: p.first_name,
-          last_name: p.last_name,
-          subscription_id,
-        });
-        memberId = String(m.user_id);
-        await recordLink(userId, "directory", memberId, "provisioned");
-        await directoryup.writeOmniforceId(memberId, p.omniforce_id);
+        
+        // 2. Create a BRAND NEW Directory member. 
+        // We completely removed the findByEmail check because BD's API cannot filter by email, 
+        // and doing so was causing users to hijack old accounts.
+        try {
+          const m = await directoryup.create({
+            email: p.email,
+            first_name: p.first_name,
+            last_name: p.last_name,
+            subscription_id,
+          });
+          memberId = String(m.user_id);
+          await recordLink(userId, "directory", memberId, "provisioned");
+          await directoryup.writeOmniforceId(memberId, p.omniforce_id);
+        } catch (e) {
+          if (e instanceof DuplicateError) {
+             // SECURITY: The email exists in BD, but is NOT mapped to this OmniForce ID.
+             // We must NOT link to it automatically. Flag it for Admin review.
+             await recordLink(userId, "directory", "PENDING", "verified_email");
+             return { skipped: "link_pending_review", candidate: "email_exists_in_bd" };
+          }
+          throw e;
+        }
       }
     }
 
@@ -88,6 +95,7 @@ export async function provision(userId: string, module: Mod, eventType = "member
       });
       await directoryup.writeOmniforceId(memberId, p.omniforce_id);
     }
+    
     await admin.from("identity_links").update({ last_synced_at: new Date().toISOString(), last_error: null }).eq("user_id", userId).eq("module_key", "directory");
     return { external_id: memberId };
   }
@@ -107,14 +115,6 @@ async function orgTarget(orgId: string): Promise<WssoOrgTarget> {
 
 const memberEvent = (on: boolean) => (on ? "member.enabled" : "member.disabled") as "member.enabled" | "member.disabled";
 
-/**
- * One queued event → the WSSO events that restate the current access. Reads state
- * at send time, so a late or repeated event can never undo a newer change.
- *   organization only        → workspace access (plan, seats) or revoked
- *   person + organization    → that person in that organization's workspace
- *   person                   → account disabled: blocked everywhere; otherwise their personal
- *                              workspace and their place in every organization's workspace
- */
 export async function syncWsso(e: QueuedEvent) {
   const idem = `evt-${e.id}`;
 
