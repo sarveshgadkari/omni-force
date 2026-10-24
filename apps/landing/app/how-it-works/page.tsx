@@ -15,7 +15,7 @@ export default function HowItWorksPage() {
       <PageHero
         eyebrow="How it works"
         title="The path from an account to a module"
-        lede="Omni Force Vector authenticates the central account. WSSO and the Drone Directory still use their own logins. Subscribing does not provision those applications."
+        lede="OmniForce authenticates the central account. Directory sign-in through OmniForce uses a DirectoryUp login token once an administrator switches it on. WSSO still uses its own login. Subscribing does not provision those applications while provisioning is disabled."
       />
       <section className="section">
         <div className="wrap">
@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
           </div>
           <ul className="features">
             <li><Check /><span><strong>Central authentication</strong><span className="dim">Email, password and the verification code belong to Omni Force Vector.</span></span></li>
-            <li><Check /><span><strong>Application login</strong><span className="dim">WSSO and the Drone Directory are not configured for single sign-on. Workforce licence activation from the app is not live.</span></span></li>
+            <li><Check /><span><strong>Application login</strong><span className="dim">Directory sign-in through OmniForce uses a DirectoryUp login token once an administrator switches it on. WSSO is not configured. Workforce licence activation from the app is not live.</span></span></li>
             <li><Check /><span><strong>No automatic provisioning</strong><span className="dim">A subscription does not create an account in WSSO, DirectoryUp or Workforce while provisioning is disabled.</span></span></li>
           </ul>
         </div>

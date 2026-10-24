@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Omni Force Vector · Three platforms. One subscription.",
   description:
-    "Manage business operations, discover the drone industry and put AI to work through one central platform. WSSO and Drone Directory sign-in through Omni Force Vector is not configured. Workforce 2.0 is free to download; its in-app paid options are billed separately.",
+    "Manage business operations, discover the drone industry and put AI to work through one central platform. Directory sign-in through OmniForce uses a DirectoryUp login token once an administrator switches it on. WSSO sign-in is not configured. Workforce 2.0 is free to download; its in-app paid options are billed separately.",
   icons: { icon: "/omniforce-vector-logo.png", apple: "/omniforce-vector-logo.png" },
   openGraph: {
     title: "Omni Force Vector",

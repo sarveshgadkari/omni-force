@@ -37,7 +37,7 @@ export function SiteFrame({ children }: { children: React.ReactNode }) {
         </div>
         <div className="wrap footer-base dim">
           <span>© {new Date().getFullYear()} Omni Force Vector.</span>
-          <span>WSSO and the Drone Directory keep their own logins. Single sign-on is not configured for either.</span>
+          <span>WSSO keeps its own login. Directory sign-in through OmniForce uses a DirectoryUp login token once an administrator switches it on.</span>
         </div>
       </footer>
     </>

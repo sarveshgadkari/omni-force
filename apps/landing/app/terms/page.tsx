@@ -23,7 +23,7 @@ export default function TermsPage() {
           <h2>Workforce 2.0</h2>
           <p>Workforce 2.0 is free to download from its own site. Its free task allowance, paid plans and media credits are billed inside Workforce unless an Omni Force Vector plan explicitly includes them. None does today. Licence activation from the desktop app is not live.</p>
           <h2>Sign-in</h2>
-          <p>Omni Force Vector sign-in is the central account. Single sign-on is not configured for WSSO or the Drone Directory. Keep using those products’ own logins.</p>
+          <p>Omni Force Vector sign-in is the central account. Directory sign-in through OmniForce uses a DirectoryUp login token once an administrator switches it on. WSSO single sign-on is not configured.</p>
           <h2>Billing</h2>
           <p>When a Stripe subscription exists, it renews until you cancel. Cancellation takes effect as the billing portal and the subscription record describe it. A failed payment does not count as a successful purchase.</p>
           <h2>The products</h2>

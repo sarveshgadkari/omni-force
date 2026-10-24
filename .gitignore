@@ -35,3 +35,6 @@ coverage/
 # written by `next dev` (Next 16.3+)
 apps/landing/AGENTS.md
 apps/landing/CLAUDE.md
+
+# filled-in setup scripts (contain secrets)
+supabase/setup/*.local.sql

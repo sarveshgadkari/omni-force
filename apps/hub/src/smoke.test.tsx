@@ -7,6 +7,7 @@ import { MemoryRouter } from "react-router-dom";
 import { AuthProvider } from "./auth/AuthProvider";
 import { App } from "./App";
 import { auth } from "./lib/api";
+import { demoModules } from "./lib/demo";
 
 const at = (path: string) =>
   render(<MemoryRouter initialEntries={[path]}><AuthProvider><App /></AuthProvider></MemoryRouter>);
@@ -94,6 +95,16 @@ describe("hub (demo mode)", () => {
     expect(within(dialog).getByText(/Only do this after the WSSO team/)).toBeTruthy();
     fireEvent.click(within(dialog).getByText("Enable for everyone"));
     await find(/Enable an application client/);
+
+    const dirSel = screen.getByLabelText("Drone Directory sign-in") as HTMLSelectElement;
+    expect(dirSel.value).toBe("not_configured");
+    fireEvent.change(dirSel, { target: { value: "enabled" } });
+    const dirDialog = await screen.findByRole("dialog");
+    expect(within(dirDialog).getByText(/one-time login token/)).toBeTruthy();
+    fireEvent.click(within(dirDialog).getByText("Enable for everyone"));
+    await find(/Drone Directory sign-in: enabled for everyone/);
+    const dirMod = demoModules.find((m) => m.key === "directory");
+    if (dirMod) dirMod.sso_status = "not_configured";
   });
 
   it("admin: identity link review requires a note before approving", async () => {

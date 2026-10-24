@@ -1,8 +1,10 @@
 # Sign in with OmniForce: contract for module applications
 
-For teams building "Sign in with OmniForce" into a module (WSSO, the Drone Directory, future apps). OmniForce acts as an OpenID Connect-shaped provider. It uses only standard pieces, so any OIDC/OAuth 2.0 client library that supports PKCE should work.
+For teams building "Sign in with OmniForce" into a module that uses OIDC (WSSO, future apps). OmniForce acts as an OpenID Connect-shaped provider. It uses only standard pieces, so any OIDC/OAuth 2.0 client library that supports PKCE should work.
 
-> **Status:** the OmniForce side is built and tested locally (`npm test` at the repo root). No module has built its side, so no client is registered and SSO is `not_configured` for every module. Don't present SSO to users as available until the module is switched on (see Rollout).
+The Drone Directory does **not** use this contract. It uses a DirectoryUp login token. See [DIRECTORYUP_INTEGRATION.md](DIRECTORYUP_INTEGRATION.md).
+
+> **Status:** the OmniForce OIDC side is built and tested locally (`npm test` at the repo root). WSSO has not built its side, so no WSSO client is registered and WSSO SSO stays `not_configured`. Directory token SSO is implemented on the OmniForce side and still starts `not_configured` until an administrator switches it on. Don't present SSO to users as available until the module is switched on (see Rollout).
 
 ## Endpoints
 
@@ -86,8 +88,8 @@ Tell OmniForce which of *your* accounts this person was bound to. Accepted only 
 1. The module team builds the start, callback and token-exchange routes against a **staging** client.
 2. A platform admin registers the staging client, sets it to `testing`, and sets the module's sign-in to `testing`. Only platform admins can now sign in.
 3. Test the flow end to end, including: wrong `state`, replayed code, an expired code, a user without access, a disabled user, the organization picker, and account linking.
-4. Register the production client and enable it. Set the module's sign-in to `enabled` (refused unless an enabled client exists). The hub's "Open module" then starts working.
-5. Provisioning (OmniForce pushing accounts into the module) is a separate switch. Leave it off until that API contract is also verified.
+4. Register the production client and enable it. Set the module's sign-in to `enabled` (refused unless an enabled client exists, except Directory which uses a login token and needs no client). The hub's "Open module" then starts working.
+5. Provisioning (OmniForce pushing accounts into the module) is a separate switch. Leave it off until that API contract is also verified. Directory provisioning must be on for new members to exist before token SSO can log them in.
 
 ## Signing keys
 

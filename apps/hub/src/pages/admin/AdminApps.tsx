@@ -32,8 +32,12 @@ export function AdminApps() {
     setPending({
       title: `Set ${m.name} sign-in to ${ssoLabel[next]}?`,
       body: enabling
-        ? `Everyone with ${m.name} access will be sent through "Sign in with Omni Force Vector". Only do this after the ${m.name} team has built and tested their side.`
-        : next === "testing" ? "Only platform admins will be able to sign in through Omni Force Vector. Use this to test against a staging client."
+        ? (m.key === "directory"
+          ? "Everyone with Directory access will be sent to DirectoryUp with a one-time login token. The API key must allow Include User Token, and Directory provisioning should be enabled so members exist."
+          : `Everyone with ${m.name} access will be sent through "Sign in with Omni Force Vector". Only do this after the ${m.name} team has built and tested their side.`)
+        : next === "testing" ? (m.key === "directory"
+          ? "Only platform admins will be sent to DirectoryUp with a login token. Use this to test the API key and member mapping."
+          : "Only platform admins will be able to sign in through Omni Force Vector. Use this to test against a staging client.")
         : "Omni Force Vector sign-in stops. Users go back to the product's own login.",
       label: enabling ? "Enable for everyone" : "Change sign-in",
       tone: enabling ? "danger" : "primary",
@@ -59,7 +63,7 @@ export function AdminApps() {
       <PageHeader
         eyebrow="Configuration"
         title="Applications and SSO"
-        description="Which products can sign people in with Omni Force Vector, and which receive account provisioning. Everything starts switched off."
+        description="Which products can sign people in with Omni Force Vector, and which receive account provisioning. Directory uses a DirectoryUp login token (no OAuth client). Everything starts switched off."
         actions={<Button onClick={() => setCreating(true)}><Icon name="plus" size={15} />Register application</Button>}
       />
       {msg && <Alert tone={msg.tone}>{msg.text}</Alert>}

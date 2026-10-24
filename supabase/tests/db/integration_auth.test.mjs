@@ -71,6 +71,17 @@ test("enabling a module's SSO requires an enabled client", async () => {
   await t.rejects(t.as(admin, "update modules set sso_status = 'enabled' where key = 'wsso'"), /permission denied/);
 });
 
+test("Directory token SSO can be enabled without an OAuth client", async () => {
+  const before = (await t.one("select public.sso_launch_target($1, 'directory') as r", [user])).r;
+  assert.equal(before.error, "sso_unavailable");
+  await t.as(admin, "select public.admin_set_module_integration('directory', 'enabled', null)");
+  const launch = (await t.one("select public.sso_launch_target($1, 'directory') as r", [user])).r;
+  assert.equal(launch.protocol, "directory_token");
+  assert.equal(launch.app_url, "https://drones-drones-drones.directoryup.com");
+  assert.equal(launch.error, undefined);
+  await t.as(admin, "select public.admin_set_module_integration('directory', 'not_configured', null)");
+});
+
 test("testing mode: only platform admins can sign in", async () => {
   await t.q("insert into entitlements (user_id, module_key, plan_id, status, source) values ($1, 'wsso', $2, 'active', 'admin'), ($3, 'wsso', $2, 'active', 'admin')",
     [user, await plan(t, "wsso_growth_month"), admin]);

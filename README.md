@@ -67,4 +67,4 @@ Then:
 ## Before launch
 
 - Replace draft prices (Directory paid plans, bundle) in `supabase/seed.sql` and `apps/landing/lib/site.ts`.
-- Leave every module's SSO and provisioning switched off until that module's side is built and verified ([docs/INTEGRATION_AUTH.md](docs/INTEGRATION_AUTH.md) → Rollout).
+- Leave every module's SSO and provisioning switched off until that module's side is built and verified ([docs/INTEGRATION_AUTH.md](docs/INTEGRATION_AUTH.md) → Rollout). DirectoryUp token SSO is implemented on the OmniForce side ([docs/DIRECTORYUP_INTEGRATION.md](docs/DIRECTORYUP_INTEGRATION.md)); set `DIRECTORYUP_API_KEY`, then enable Directory provisioning and sign-in in Admin → Applications.

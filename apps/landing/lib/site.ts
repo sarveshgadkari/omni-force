@@ -106,10 +106,10 @@ export const products: Product[] = [
     ],
     faqs: [
       { q: "Does Omni Force Vector run the directory software?", a: "No. The directory runs on DirectoryUp. Omni Force Vector does not control those features." },
-      { q: "Can I sign in to the directory with Omni Force Vector?", a: "Not today. Directory single sign-on is not configured. Use the directory's own login. Subscribing does not create a directory account while provisioning is disabled." },
+      { q: "Can I sign in to the directory with Omni Force Vector?", a: "OmniForce can create the Directory member and then open DirectoryUp with a one-time login token. An administrator still has to switch Directory sign-in and provisioning on. Until then, use the directory's own login." },
     ],
     access:
-      "Omni Force Vector can hold a directory entitlement. That does not operate DirectoryUp, and it does not sign you in. Scout and Recreational Pilot are configured as free plans. Paid directory prices in the database are placeholders and are not offered on this site.",
+      "OmniForce can hold a directory entitlement, create the DirectoryUp member, and open DirectoryUp with a login token once an administrator has switched Directory sign-in and provisioning on. Until then, use the directory's own login. Scout and Recreational Pilot are configured as free plans. Paid directory prices in the database are placeholders and are not offered on this site.",
     operator: "Operated as a DirectoryUp site. Omni Force Vector does not control the underlying directory features.",
     cta: "Open the Drone Directory",
   },
@@ -178,7 +178,7 @@ export const howItWorks = [
   {
     n: "04",
     title: "Open an enabled platform",
-    body: "The module launcher shows Drone Directory, WSSO and Workforce 2.0. What you can open depends on a live entitlement — yours, or an organization seat — and on that application's integration. WSSO and the Drone Directory are not configured for single sign-on. Workforce licence activation from the app is not live. Subscribing does not create accounts in those applications while provisioning is disabled.",
+    body: "The module launcher shows Drone Directory, WSSO and Workforce 2.0. What you can open depends on a live entitlement — yours, or an organization seat — and on that application's integration. Directory sign-in through OmniForce uses a DirectoryUp login token once an administrator has switched it on. WSSO single sign-on is not configured. Workforce licence activation from the app is not live. Subscribing does not create accounts in those applications while provisioning is disabled.",
   },
   {
     n: "05",
@@ -232,8 +232,8 @@ export const faqs = [
   { q: "Are Workforce 2.0 paid features included?", a: "No. Paid plans and additional features may be purchased inside Workforce 2.0. Omni Force Vector does not grant those task plans or media credits." },
   { q: "Can a company manage access for its team?", a: "Yes. Create an organization, subscribe to a plan that includes the modules you need, and assign seats where the plan has a seat limit. Owners and billing manage payment. Admins manage members and seats." },
   { q: "How do organization invitations work?", a: "An admin or owner invites an email address. The link is single-use and only works for that verified email. The invited person accepts it in the Omni Force Vector hub and receives the role on the invitation." },
-  { q: "Can users switch modules?", a: "The launcher lists the modules their entitlement covers. Switching does not sign them into WSSO or the Drone Directory. Those products keep their own logins until single sign-on is configured and verified." },
-  { q: "Is single sign-on available for every platform?", a: "No. Omni Force Vector sign-in is only the central account. WSSO and the Drone Directory are not configured for single sign-on. Workforce licence activation from the app is not live. Nothing here claims those integrations work." },
+  { q: "Can users switch modules?", a: "The launcher lists the modules their entitlement covers. Opening the Drone Directory through OmniForce uses a DirectoryUp login token once Directory sign-in is switched on. WSSO keeps its own login until its integration is configured." },
+  { q: "Is single sign-on available for every platform?", a: "No. Directory sign-in through OmniForce is implemented as a DirectoryUp login token and still has to be switched on by an administrator. WSSO single sign-on is not configured. Workforce licence activation from the app is not live." },
   { q: "How are subscription and access issues handled?", a: "Billing, invoices and cancellation are in the hub's billing area, through Stripe once a subscription exists. Module access follows the live entitlement and seat assignment. If a product will not open, check that the entitlement is active and remember that external sign-in is still that product's own login. Platform administrators can review account links, integration queues and audit logs." },
 ];
 

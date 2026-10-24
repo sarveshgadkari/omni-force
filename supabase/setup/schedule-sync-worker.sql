@@ -4,15 +4,20 @@
 do $$
 declare
   v_ref    text := '<hub-ref>';        -- e.g. abcd1234efgh5678
+  v_id     uuid;
   v_secret text := '<CRON_SECRET>';    -- same value as the CRON_SECRET function secret
 begin
   if v_ref like '<%' or v_secret like '<%' then
     raise exception 'Replace <hub-ref> and <CRON_SECRET> before running this script';
   end if;
 
-  perform vault.create_secret(v_secret, 'omniforce_cron_secret')
-    where not exists (select 1 from vault.secrets where name = 'omniforce_cron_secret');
-  update vault.secrets set secret = v_secret where name = 'omniforce_cron_secret';
+  -- vault.secrets can't be updated directly; use the vault functions
+  select id into v_id from vault.secrets where name = 'omniforce_cron_secret';
+  if v_id is null then
+    perform vault.create_secret(v_secret, 'omniforce_cron_secret');
+  else
+    perform vault.update_secret(v_id, v_secret);
+  end if;
 
   perform cron.unschedule('omniforce-sync-worker')
     where exists (select 1 from cron.job where jobname = 'omniforce-sync-worker');

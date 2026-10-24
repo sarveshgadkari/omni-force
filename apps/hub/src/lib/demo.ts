@@ -10,7 +10,7 @@ const ahead = (days: number) => new Date(now + days * 86_400_000).toISOString();
 
 // Same integration state as a fresh database: no module has Omni Force Vector sign-in switched on.
 export const demoModules: Module[] = [
-  { key: "directory", name: "Drone Directory", deployment: "cloud", app_url: "https://drones-drones-drones.directoryup.com", sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "Brilliant Directories. SSO protocol support not verified; REST provisioning endpoints not confirmed with the BD team.", is_active: true, sort: 1 },
+  { key: "directory", name: "Drone Directory", deployment: "cloud", app_url: "https://drones-drones-drones.directoryup.com", sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "DirectoryUp token SSO and member provisioning are implemented. An admin still has to switch Directory sign-in and provisioning on.", is_active: true, sort: 1 },
   { key: "wsso", name: "WSSO", deployment: "cloud", app_url: "https://wsso.tlbisbig.world", sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "Separate Supabase project (profiles, organizations). Integration contract drafted, nothing deployed on the WSSO side.", is_active: true, sort: 2 },
   { key: "workforce", name: "Workforce 2.0", deployment: "onprem", app_url: null, sso_status: "not_configured", provisioning_status: "disabled", integration_notes: "Desktop app (Windows, Linux, Android). Omni Force Vector licence keys; activation from the app is not live.", is_active: true, sort: 3 },
 ];
@@ -22,19 +22,19 @@ const plan = (p: Partial<Plan> & Pick<Plan, "code" | "name" | "interval" | "pric
 });
 
 export const demoPlans: Plan[] = [
-  plan({ code: "dir_scout", name: "Scout", module_key: "directory", interval: "free", price_cents: 0, external_ref: "BD_SUB_SCOUT" }),
-  plan({ code: "dir_recreational", name: "Recreational Pilot", module_key: "directory", interval: "free", price_cents: 0, external_ref: "BD_SUB_RECREATIONAL" }),
-  plan({ code: "dir_commercial_month", name: "Commercial Pilot", module_key: "directory", interval: "month", price_cents: 1900, external_ref: "BD_SUB_COMMERCIAL", stripe_price_id: "price_demo_1" }),
-  plan({ code: "dir_provider_month", name: "Service Provider", module_key: "directory", interval: "month", price_cents: 4900, external_ref: "BD_SUB_PROVIDER", stripe_price_id: "price_demo_2" }),
-  plan({ code: "dir_vendor_month", name: "Vendor", module_key: "directory", interval: "month", price_cents: 7900, external_ref: "BD_SUB_VENDOR" }),
-  plan({ code: "dir_employer_month", name: "Employer / Contractor", module_key: "directory", interval: "month", price_cents: 9900, external_ref: "BD_SUB_EMPLOYER" }),
+  plan({ code: "dir_scout", name: "Scout", module_key: "directory", interval: "free", price_cents: 0, external_ref: "1" }),
+  plan({ code: "dir_recreational", name: "Recreational Pilot", module_key: "directory", interval: "free", price_cents: 0, external_ref: "6" }),
+  plan({ code: "dir_commercial_month", name: "Commercial Pilot", module_key: "directory", interval: "month", price_cents: 1900, external_ref: "3", stripe_price_id: "price_demo_1" }),
+  plan({ code: "dir_provider_month", name: "Service Provider", module_key: "directory", interval: "month", price_cents: 4900, external_ref: "2", stripe_price_id: "price_demo_2" }),
+  plan({ code: "dir_vendor_month", name: "Vendor", module_key: "directory", interval: "month", price_cents: 7900, external_ref: "5" }),
+  plan({ code: "dir_employer_month", name: "Employer / Contractor", module_key: "directory", interval: "month", price_cents: 9900, external_ref: "5" }),
   plan({ code: "wsso_starter_month", name: "Starter", module_key: "wsso", interval: "month", price_cents: 9900, seats: 10, trial_days: 14, external_ref: "starter", stripe_price_id: "price_demo_3" }),
   plan({ code: "wsso_growth_month", name: "Growth", module_key: "wsso", interval: "month", price_cents: 29900, seats: 50, trial_days: 14, external_ref: "growth", stripe_price_id: "price_demo_4" }),
   plan({ code: "wsso_business_month", name: "Business", module_key: "wsso", interval: "month", price_cents: 69900, seats: 150, external_ref: "business" }),
   plan({ code: "wsso_enterprise_month", name: "Enterprise", module_key: "wsso", interval: "month", price_cents: 150000, seats: 500, external_ref: "enterprise" }),
   plan({ code: "wf_single_license", name: "Single site", module_key: "workforce", interval: "license", price_cents: 0, external_ref: "single" }),
   plan({ code: "wf_multi_license", name: "Multi site", module_key: "workforce", interval: "license", price_cents: 0, external_ref: "multi" }),
-  plan({ code: "bundle_dir_wsso_month", name: "Directory + WSSO", bundle_modules: ["directory", "wsso"], interval: "month", price_cents: 32900, seats: 50, trial_days: 14, external_ref: "BD_SUB_PROVIDER|growth" }),
+  plan({ code: "bundle_dir_wsso_month", name: "Directory + WSSO", bundle_modules: ["directory", "wsso"], interval: "month", price_cents: 32900, seats: 50, trial_days: 14, external_ref: "2|growth" }),
 ];
 const P = (code: string) => demoPlans.find((p) => p.code === code)!;
 

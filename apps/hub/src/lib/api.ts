@@ -319,8 +319,8 @@ export const billing = {
 
 export const launch = {
   /**
-   * Where "Open module" goes. SSO to WSSO and the Drone Directory is not live yet:
-   * until a module's SSO is enabled this returns the module's own sign-in page.
+   * Where "Open module" goes. Directory token SSO and WSSO OIDC only run when
+   * that module's SSO is switched on; otherwise this returns the module's own sign-in page.
    */
   async module(m: ModuleKey): Promise<LaunchResult> {
     if (DEMO) {
@@ -514,7 +514,8 @@ export const admin = {
   async setModuleIntegration(m: ModuleKey, sso: Module["sso_status"] | null, provisioning: Module["provisioning_status"] | null) {
     if (DEMO) {
       const mod = demo.demoModules.find((x) => x.key === m);
-      if (sso === "enabled" && !demo.demoClients.some((c) => c.module_key === m && c.status === "enabled")) throw new Error(friendly.enable_a_client_first);
+      // Directory SSO is a DirectoryUp login token, not an OAuth client.
+      if (sso === "enabled" && m !== "directory" && !demo.demoClients.some((c) => c.module_key === m && c.status === "enabled")) throw new Error(friendly.enable_a_client_first);
       if (mod) { if (sso) mod.sso_status = sso; if (provisioning) mod.provisioning_status = provisioning; }
       return wait(true);
     }

@@ -46,13 +46,12 @@ export async function provision(userId: string, module: Mod, eventType = "member
   const active = !!own && p.status === "active" && eventType !== "member.disable";
 
   if (module === "directory") {
-    const subscription_id = own?.plan_ref ?? Deno.env.get("DIRECTORYUP_FREE_SUBSCRIPTION_ID") ?? "";
+    const subscription_id = own?.plan_ref || Deno.env.get("DIRECTORYUP_FREE_SUBSCRIPTION_ID") || "1";
     let memberId = current?.status === "linked" ? (current.external_id as string) : undefined;
 
     if (!memberId) {
       const mine = await directoryup.findByOmniforceId(p.omniforce_id);
       if (mine) {
-        // carries our OmniForce ID, which only OmniForce writes → ours
         memberId = String(mine.user_id);
         await recordLink(userId, "directory", memberId, "provisioned");
       } else {
@@ -61,19 +60,34 @@ export async function provision(userId: string, module: Mod, eventType = "member
           if (sameEmail.omniforce_user_id && sameEmail.omniforce_user_id !== p.omniforce_id) {
             throw new Error(`Directory member ${sameEmail.user_id} already belongs to ${sameEmail.omniforce_user_id}`);
           }
-          // existing member with the same email: a candidate for an admin to confirm; nothing changes in BD yet
           await recordLink(userId, "directory", String(sameEmail.user_id), "verified_email");
           return { skipped: "link_pending_review", candidate: String(sameEmail.user_id) };
         }
         if (!active) return null;
-        const m = await directoryup.create({ email: p.email, first_name: p.first_name, last_name: p.last_name, company: p.company_name, subscription_id, omniforce_user_id: p.omniforce_id });
+        // Two calls per signup: create the member, then write omniforce_user_id on that user_id.
+        const m = await directoryup.create({
+          email: p.email,
+          first_name: p.first_name,
+          last_name: p.last_name,
+          subscription_id,
+        });
         memberId = String(m.user_id);
         await recordLink(userId, "directory", memberId, "provisioned");
+        await directoryup.writeOmniforceId(memberId, p.omniforce_id);
       }
     }
 
     if (!active) await directoryup.deactivate(memberId);
-    else await directoryup.update(memberId, { email: p.email, first_name: p.first_name, last_name: p.last_name, company: p.company_name ?? undefined, subscription_id, active: 2, omniforce_user_id: p.omniforce_id });
+    else {
+      await directoryup.update(memberId, {
+        email: p.email,
+        first_name: p.first_name,
+        last_name: p.last_name,
+        subscription_id,
+        active: 2,
+      });
+      await directoryup.writeOmniforceId(memberId, p.omniforce_id);
+    }
     await admin.from("identity_links").update({ last_synced_at: new Date().toISOString(), last_error: null }).eq("user_id", userId).eq("module_key", "directory");
     return { external_id: memberId };
   }

@@ -68,7 +68,7 @@ returns boolean language sql stable as $$
           or p_valid_until > now() - case when p_source = 'stripe' then interval '7 days' else interval '0' end)
 $$;
 
--- Bundle refs look like "BD_SUB_PROVIDER|growth": first part for Directory, last part for others.
+-- Bundle refs look like "2|growth": first part for Directory, last part for others.
 create or replace function public.plan_ref_for(p_ref text, p_module public.module_key)
 returns text language sql immutable as $$
   select case when p_ref is null then null

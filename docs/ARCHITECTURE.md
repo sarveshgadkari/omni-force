@@ -2,7 +2,7 @@
 
 OmniForce is the central platform for identity, sign-in, organizations, memberships, module access, subscriptions, payments and platform administration. The modules (WSSO, the Drone Directory, Workforce 2.0) keep their own data and their own in-app permissions.
 
-**Status (2026-10-14).** The hub's data model, access rules and authentication interface are built and tested locally. WSSO's side of the integration (sign-in through OmniForce, workspace creation, signed access events) is now built and tested locally too; see [WSSO_INTEGRATION.md](WSSO_INTEGRATION.md). **Single sign-on to WSSO and to the Drone Directory is not live.** Both modules start with `sso_status = not_configured` and `provisioning_status = disabled`. Nothing is sent to either module, and the hub tells users to keep using each module's own login.
+**Status (2026-10-24).** The hub's data model, access rules and authentication interface are built and tested locally. DirectoryUp token SSO and member provisioning are implemented on the OmniForce side ([DIRECTORYUP_INTEGRATION.md](DIRECTORYUP_INTEGRATION.md)); an administrator still has to switch Directory sign-in and provisioning on. WSSO's contract is drafted ([WSSO_INTEGRATION.md](WSSO_INTEGRATION.md)). **Single sign-on to WSSO is not live.** Both modules still *start* with `sso_status = not_configured` and `provisioning_status = disabled`.
 
 ## 1. Who is who
 
@@ -66,7 +66,7 @@ See [INTEGRATION_AUTH.md](INTEGRATION_AUTH.md) for the full contract. In short:
 
 - OmniForce exposes an **OpenID Connect-shaped provider**: authorization code flow, **mandatory PKCE (S256)**, confidential clients, ES256-signed ID tokens, userinfo, discovery and JWKS (the `oidc` edge function).
 - Applications are registered as **clients** (`oauth_clients`): exact redirect URIs, hashed secrets, 24-hour overlap when a secret is rotated, and status `disabled` → `testing` (platform admins only) → `enabled`.
-- **"Open module" in the hub uses OIDC third-party-initiated login.** The hub sends the browser to the app's `initiate_login_uri`, and the app then starts a normal authorization request with its own `state` and PKCE. No credential travels in that URL. This replaces the earlier design, which pushed a signed ticket into the module. Neither module ever implemented that ticket, so it was removed rather than kept as an unused bearer-credential path.
+- **"Open module" in the hub is per product.** Directory uses a DirectoryUp login token: the hub fetches `include_user_token=1` and sends the browser to `/login/token/{token}` (no OAuth client). WSSO uses OIDC third-party-initiated login: the hub sends the browser to the app's `initiate_login_uri`, and the app then starts a normal authorization request with its own `state` and PKCE. No OmniForce credential travels in that WSSO URL. This replaces the earlier design, which pushed a signed ticket into the module. WSSO never implemented that ticket, so it was removed rather than kept as an unused bearer-credential path.
 - A server-to-server **integration API** (`check_access`, `link_identity`) lets an app back end ask OmniForce for central access, and report which of its own accounts a just-signed-in user was bound to.
 
 ## 5. Decisions that affect the future WSSO integration
@@ -94,7 +94,9 @@ supabase/migrations/20261010000001_organizations.sql        organizations, roles
 supabase/migrations/20261010000002_access_model.sql         entitlement ownership, effective access, recompute, sync gates
 supabase/migrations/20261010000003_identity_links.sql       linking rules, organization links, admin review
 supabase/migrations/20261010000004_integration_auth.sql     clients, codes, claims, launch, integration API
+supabase/migrations/20261024000001_directoryup_token_sso.sql Directory plan IDs, token SSO launch, Directory enable without OAuth client
 supabase/functions/oidc/                                    discovery, jwks, authorize (hub), token, userinfo
+supabase/functions/sso-launch/                              Open module: Directory token SSO or WSSO initiate_login_uri
 supabase/functions/integration-api/                         check_access, link_identity
 supabase/tests/db/                                          PGlite tests for every rule above
 supabase/tests/functions/                                   Deno unit tests + end-to-end sign-in contract test

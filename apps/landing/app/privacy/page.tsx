@@ -21,7 +21,7 @@ export default function PrivacyPage() {
           <h2>Payments</h2>
           <p>Card payments go through Stripe. Omni Force Vector does not store your card number. Invoices and subscription status that Stripe reports are shown in the billing area of the hub.</p>
           <h2>Product data</h2>
-          <p>WSSO workspaces, directory listings and Workforce 2.0 files are not stored in Omni Force Vector. Workforce documents stay on the computer where that app is installed. Signing in to Omni Force Vector does not sign you in to WSSO or the Drone Directory, because that sign-in is not configured.</p>
+          <p>WSSO workspaces, directory listings and Workforce 2.0 files are not stored in Omni Force Vector. Workforce documents stay on the computer where that app is installed. Signing in to OmniForce does not sign you in to WSSO. Opening the Directory through OmniForce uses a DirectoryUp login token only after an administrator has switched that path on.</p>
           <h2>Administration</h2>
           <p>Platform administrators can see account, organization, billing and audit records required to operate the hub. Linking an existing product account requires proof that the account is yours. A matching email by itself is not treated as that proof.</p>
           <h2>Each product</h2>
