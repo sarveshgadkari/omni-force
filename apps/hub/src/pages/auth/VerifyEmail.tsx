@@ -6,12 +6,14 @@ import { useAuth } from "../../auth/AuthProvider";
 import { Alert, Button, Icon } from "../../components/ui";
 import { signupSteps, StepsBar } from "./Signup";
 
+const OTP_LEN = 8;
+
 export function VerifyEmail() {
   const [params] = useSearchParams();
   const email = params.get("email") ?? "";
   const nav = useNavigate();
   const { refresh } = useAuth();
-  const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
+  const [digits, setDigits] = useState<string[]>(Array(OTP_LEN).fill(""));
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [cool, setCool] = useState(30);
@@ -28,20 +30,20 @@ export function VerifyEmail() {
   function setAt(i: number, v: string) {
     const clean = v.replace(/\D/g, "");
     if (clean.length > 1) {
-      const next = clean.slice(0, 6).split("");
-      setDigits([...next, ...Array(6 - next.length).fill("")]);
-      refs.current[Math.min(next.length, 5)]?.focus();
+      const next = clean.slice(0, OTP_LEN).split("");
+      setDigits([...next, ...Array(OTP_LEN - next.length).fill("")]);
+      refs.current[Math.min(next.length, OTP_LEN - 1)]?.focus();
       return;
     }
     const d = [...digits];
     d[i] = clean;
     setDigits(d);
-    if (clean && i < 5) refs.current[i + 1]?.focus();
+    if (clean && i < OTP_LEN - 1) refs.current[i + 1]?.focus();
   }
 
   async function submit(e?: React.FormEvent) {
     e?.preventDefault();
-    if (code.length !== 6) return setErr("Enter all 6 digits from the email.");
+    if (code.length < 6) return setErr("Enter the full code from the email.");
     setBusy(true);
     setErr(null);
     try {
@@ -63,7 +65,7 @@ export function VerifyEmail() {
         <p className="step-tag">Step 2 of {signupSteps()} · Verify email</p>
         <span className="list-ico" aria-hidden="true"><Icon name="mail" /></span>
         <h2>Check your inbox</h2>
-        <p className="dim">We sent a 6-digit code to <strong className="fg">{email || "your email"}</strong>. It expires in 10 minutes.</p>
+        <p className="dim">We sent a code to <strong className="fg">{email || "your email"}</strong>. Enter every digit from the email. It expires in 10 minutes.</p>
       </div>
       {err && <Alert>{err}</Alert>}
       <div className="otp" role="group" aria-label="Verification code">
@@ -74,7 +76,7 @@ export function VerifyEmail() {
             ref={(el) => { refs.current[i] = el; }}
             inputMode="numeric"
             autoComplete={i === 0 ? "one-time-code" : "off"}
-            maxLength={6}
+            maxLength={OTP_LEN}
             value={d}
             aria-label={`Digit ${i + 1}`}
             onChange={(e) => setAt(i, e.target.value)}
@@ -82,7 +84,7 @@ export function VerifyEmail() {
           />
         ))}
       </div>
-      <Button type="submit" loading={busy} className="btn-block btn-lg" disabled={code.length !== 6}>Verify and continue</Button>
+      <Button type="submit" loading={busy} className="btn-block btn-lg" disabled={code.length < 6}>Verify and continue</Button>
       <p className="dim small center">
         Didn't get it?{" "}
         <button type="button" className="link-btn" disabled={cool > 0} onClick={async () => { try { await auth.resendOtp(email); setCool(30); setErr(null); } catch (e) { setErr(e instanceof Error ? e.message : "Couldn't resend the code."); } }}>
