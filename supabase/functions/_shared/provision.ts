@@ -1,10 +1,4 @@
 // Keep cloud modules in step with access decided in OmniForce.
-// Only runs for modules whose provisioning an admin has enabled (after the
-// module's API contract was verified). Linking rules live in SQL
-// (record_identity_link): an email match never links by itself.
-//   Directory: OmniForce creates/updates the member through the BD API.
-//   WSSO:      WSSO creates the account on first sign-in through OmniForce; we only
-//              send the current access state (idempotent, safe to repeat).
 import { admin, rpc } from "./db.ts";
 import { directoryup, DuplicateError, SecurityError } from "./directoryup.ts";
 import { wssoEvent, type WssoOrgTarget } from "./wsso.ts";
@@ -51,36 +45,28 @@ export async function provision(userId: string, module: Mod, eventType = "member
     let memberId = current?.status === "linked" ? (current.external_id as string) : undefined;
 
     if (!memberId) {
-      // 1. Check if this OmniForce user was already mapped to a Directory user (e.g. from an old run)
-      const mine = await directoryup.findByOmniforceId(p.omniforce_id);
-      if (mine) {
-        memberId = String(mine.user_id);
+      if (!active) return null;
+      
+      // SECURITY: We removed findByOmniforceId entirely. 
+      // If they are not in identity_links, they get a brand new BD account.
+      try {
+        const m = await directoryup.create({
+          email: p.email,
+          first_name: p.first_name,
+          last_name: p.last_name,
+          subscription_id,
+        });
+        memberId = String(m.user_id);
         await recordLink(userId, "directory", memberId, "provisioned");
-      } else {
-        if (!active) return null;
-        
-        // 2. Create a BRAND NEW Directory member. 
-        // We completely removed the findByEmail check because BD's API cannot filter by email, 
-        // and doing so was causing users to hijack old accounts.
-        try {
-          const m = await directoryup.create({
-            email: p.email,
-            first_name: p.first_name,
-            last_name: p.last_name,
-            subscription_id,
-          });
-          memberId = String(m.user_id);
-          await recordLink(userId, "directory", memberId, "provisioned");
-          await directoryup.writeOmniforceId(memberId, p.omniforce_id);
-        } catch (e) {
-          if (e instanceof DuplicateError) {
-             // SECURITY: The email exists in BD, but is NOT mapped to this OmniForce ID.
-             // We must NOT link to it automatically. Flag it for Admin review.
-             await recordLink(userId, "directory", "PENDING", "verified_email");
-             return { skipped: "link_pending_review", candidate: "email_exists_in_bd" };
-          }
-          throw e;
+        await directoryup.writeOmniforceId(memberId, p.omniforce_id);
+      } catch (e) {
+        if (e instanceof DuplicateError) {
+           // The email exists in BD, but is NOT mapped to this OmniForce ID.
+           // Flag it for Admin review. Do NOT overwrite the existing BD account.
+           await recordLink(userId, "directory", "PENDING", "verified_email");
+           return { skipped: "link_pending_review", candidate: "email_exists_in_bd" };
         }
+        throw e;
       }
     }
 
