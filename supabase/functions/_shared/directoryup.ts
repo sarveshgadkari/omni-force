@@ -19,13 +19,18 @@ function config() {
   const base = (Deno.env.get("DIRECTORYUP_API_BASE") ?? "").replace(/\/$/, "");
   const key = (Deno.env.get("DIRECTORYUP_API_KEY") ?? "").trim();
   if (!/^https:\/\//.test(base) || key.length < 10) {
-    throw new Error("DirectoryUp API is not configured (DIRECTORYUP_API_BASE / DIRECTORYUP_API_KEY).");
+    throw new Error(
+      "DirectoryUp API is not configured (DIRECTORYUP_API_BASE / DIRECTORYUP_API_KEY).",
+    );
   }
   return { base, key };
 }
 
 export function siteOrigin() {
-  const explicit = (Deno.env.get("DIRECTORYUP_SITE_ORIGIN") ?? "").replace(/\/$/, "");
+  const explicit = (Deno.env.get("DIRECTORYUP_SITE_ORIGIN") ?? "").replace(
+    /\/$/,
+    "",
+  );
   if (/^https:\/\//.test(explicit)) return explicit;
   return config().base.replace(/\/api\/v2$/i, "");
 }
@@ -44,7 +49,12 @@ export function pickDeep(data: unknown, keys: string[]): string | null {
     if (typeof v === "object") {
       const o = v as Record<string, unknown>;
       for (const [k, val] of Object.entries(o)) {
-        if (wanted.has(k.toLowerCase()) && val != null && String(val).length > 0) return String(val);
+        if (
+          wanted.has(k.toLowerCase()) &&
+          val != null &&
+          String(val).length > 0
+        )
+          return String(val);
       }
       for (const val of Object.values(o)) {
         const found = visit(val, depth + 1);
@@ -58,50 +68,81 @@ export function pickDeep(data: unknown, keys: string[]): string | null {
 
 function strongPassword() {
   const bytes = crypto.getRandomValues(new Uint8Array(24));
-  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join(
+    "",
+  );
   return `${hex}Aa1!`;
 }
 
-async function call(method: "GET" | "POST" | "PUT", path: string, fields?: Record<string, string | number | null | undefined>) {
+async function call(
+  method: "GET" | "POST" | "PUT",
+  path: string,
+  fields?: Record<string, string | number | null | undefined>,
+) {
   const { base, key } = config();
   const body = fields
-    ? new URLSearchParams(Object.entries(fields).filter(([, v]) => v !== undefined && v !== null && String(v).length > 0).map(([k, v]) => [k, String(v)]))
+    ? new URLSearchParams(
+        Object.entries(fields)
+          .filter(
+            ([, v]) => v !== undefined && v !== null && String(v).length > 0,
+          )
+          .map(([k, v]) => [k, String(v)]),
+      )
     : undefined;
-  const url = method === "GET" && body ? `${base}/${path}?${body}` : `${base}/${path}`;
-  
+  const url =
+    method === "GET" && body ? `${base}/${path}?${body}` : `${base}/${path}`;
+
   const res = await fetch(url, {
     method,
     headers: {
       "X-Api-Key": key,
       Accept: "application/json",
-      ...(method !== "GET" ? { "Content-Type": "application/x-www-form-urlencoded" } : {}),
+      ...(method !== "GET"
+        ? { "Content-Type": "application/x-www-form-urlencoded" }
+        : {}),
     },
     body: method === "GET" ? undefined : body,
     signal: AbortSignal.timeout(TIMEOUT_MS),
   }).catch((e) => {
-    throw new Error((e as Error).name === "TimeoutError" ? `timeout after ${TIMEOUT_MS / 1000}s (DirectoryUp API)` : `DirectoryUp API unreachable: ${(e as Error).message}`);
+    throw new Error(
+      (e as Error).name === "TimeoutError"
+        ? `timeout after ${TIMEOUT_MS / 1000}s (DirectoryUp API)`
+        : `DirectoryUp API unreachable: ${(e as Error).message}`,
+    );
   });
 
   const text = await res.text();
   let data: any;
-  try { data = JSON.parse(text); } catch { data = { raw: text.slice(0, 500) }; }
-  
-  const msg = typeof data?.message === "string" ? data.message : text.slice(0, 200);
-  
-  if (res.status === 404 || (data?.status === "error" && /not found|no (records|results|users?)/i.test(msg))) throw new NotFound(msg);
-  if (!res.ok || data?.status === "error") throw new Error(`DirectoryUp API ${res.status}: ${msg}`);
-  
-  return data?.message ?? data;
-}
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = { raw: text.slice(0, 500) };
+  }
 
-async function find(p: Promise<unknown>) {
-  try { return await p; } catch (e) { if (e instanceof NotFound) return null; throw e; }
+  const msg =
+    typeof data?.message === "string" ? data.message : text.slice(0, 200);
+
+  if (
+    res.status === 404 ||
+    (data?.status === "error" &&
+      /not found|no (records|results|users?)/i.test(msg))
+  )
+    throw new NotFound(msg);
+  if (!res.ok || data?.status === "error")
+    throw new Error(`DirectoryUp API ${res.status}: ${msg}`);
+
+  return data?.message ?? data;
 }
 
 export const directoryup = {
   verify: () => call("GET", "token/verify"),
 
-  async create(m: { email: string; first_name: string; last_name: string; subscription_id: string }) {
+  async create(m: {
+    email: string;
+    first_name: string;
+    last_name: string;
+    subscription_id: string;
+  }) {
     try {
       const r = await call("POST", "user/create", {
         email: m.email,
@@ -111,11 +152,14 @@ export const directoryup = {
         password: strongPassword(),
       });
       const user_id = pickDeep(r, ["user_id", "id", "data_id"]);
-      if (!user_id) throw new Error("DirectoryUp API: create returned no user_id");
+      if (!user_id)
+        throw new Error("DirectoryUp API: create returned no user_id");
       return { user_id, raw: r } as BdMember & { raw: unknown };
     } catch (e: any) {
       if (e.message && /already exists|duplicate/i.test(e.message)) {
-        throw new DuplicateError("Email already exists in DirectoryUp. Manual review required.");
+        throw new DuplicateError(
+          "Email already exists in DirectoryUp. Manual review required.",
+        );
       }
       throw e;
     }
@@ -126,9 +170,11 @@ export const directoryup = {
       // SECURITY CHECK: Before writing, fetch the user to ensure they aren't already linked to a different ID.
       const user = await directoryup.get(directoryUserId);
       const existingId = user.raw?.omniforce_user_id;
-      
+
       if (existingId && existingId !== omniforceId) {
-        throw new SecurityError(`Directory ID ${directoryUserId} is already hard-linked to OmniForce ID ${existingId}. Cannot overwrite.`);
+        throw new SecurityError(
+          `Directory ID ${directoryUserId} is already hard-linked to OmniForce ID ${existingId}. Cannot overwrite.`,
+        );
       }
       if (existingId === omniforceId) return; // Already mapped, do nothing.
 
@@ -140,21 +186,35 @@ export const directoryup = {
       });
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      if (/already|exists|duplicate/i.test(msg) && !(e instanceof SecurityError)) return;
+      if (
+        /already|exists|duplicate/i.test(msg) &&
+        !(e instanceof SecurityError)
+      )
+        return;
       throw e;
     }
   },
 
   async get(directoryUserId: string, includeToken = false) {
-    const r = await call("GET", `user/get/${encodeURIComponent(directoryUserId)}`, includeToken ? { include_user_token: 1 } : undefined);
-    const user_id = pickDeep(r, ["user_id", "id", "data_id"]) ?? directoryUserId;
-    const token = includeToken ? pickDeep(r, ["token", "user_token", "login_token"]) : null;
+    const r = await call(
+      "GET",
+      `user/get/${encodeURIComponent(directoryUserId)}`,
+      includeToken ? { include_user_token: 1 } : undefined,
+    );
+    const user_id =
+      pickDeep(r, ["user_id", "id", "data_id"]) ?? directoryUserId;
+    const token = includeToken
+      ? pickDeep(r, ["token", "user_token", "login_token"])
+      : null;
     return { user_id, token, raw: r };
   },
 
   async loginToken(directoryUserId: string) {
     const { token } = await directoryup.get(directoryUserId, true);
-    if (!token) throw new Error("DirectoryUp API: member profile had no login token. Enable Include User Token on the API key.");
+    if (!token)
+      throw new Error(
+        "DirectoryUp API: member profile had no login token. Enable Include User Token on the API key.",
+      );
     return token;
   },
 
@@ -163,16 +223,11 @@ export const directoryup = {
     return `${siteOrigin()}/login/token/${encodeURIComponent(token)}`;
   },
 
-  // Kept for safety, but updated to use the correct BD API endpoint for metadata
-  async findByOmniforceId(ofId: string) {
-    const r = await find(call("GET", "users_meta/get", { database: "users_data", key: META_KEY, value: ofId, output_type: "array" }));
-    if (!r) return null;
-    const user_id = pickDeep(r, ["database_id", "user_id", "id"]);
-    return user_id ? { user_id } : null;
-  },
+  update: (
+    userId: string,
+    fields: Record<string, string | number | null | undefined>,
+  ) => call("PUT", "user/update", { user_id: userId, ...fields }),
 
-  update: (userId: string, fields: Record<string, string | number | null | undefined>) =>
-    call("PUT", "user/update", { user_id: userId, ...fields }),
-
-  deactivate: (userId: string) => call("PUT", "user/update", { user_id: userId, active: 3 }),
+  deactivate: (userId: string) =>
+    call("PUT", "user/update", { user_id: userId, active: 3 }),
 };
