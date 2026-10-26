@@ -48,7 +48,7 @@ export function VerifyEmail() {
       await auth.verifyOtp(email, code);
       await refresh();
       const plan = params.get("plan");
-      nav(selfServeBilling() ? `/plans${plan ? `?plan=${encodeURIComponent(plan)}` : ""}` : "/app", { replace: true });
+      nav(`/choose-password?welcome=1${plan ? `&plan=${encodeURIComponent(plan)}` : ""}`, { replace: true });
     } catch (e) {
       setErr(e instanceof Error ? e.message : "That code didn't work. Check the latest email and try again.");
     } finally {

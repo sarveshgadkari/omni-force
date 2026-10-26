@@ -7,6 +7,7 @@ import { AppLayout } from "./layouts/AppLayout";
 import { AdminLayout } from "./layouts/AdminLayout";
 import { Signup } from "./pages/auth/Signup";
 import { VerifyEmail } from "./pages/auth/VerifyEmail";
+import { ChoosePassword } from "./pages/auth/ChoosePassword";
 import { Login } from "./pages/auth/Login";
 import { Forgot } from "./pages/auth/Forgot";
 import { ResetPassword } from "./pages/auth/ResetPassword";
@@ -55,6 +56,7 @@ export function App() {
       <Route element={<AuthLayout />}>
         <Route path="/signup" element={<Signup />} />
         <Route path="/verify" element={<VerifyEmail />} />
+        <Route path="/choose-password" element={<ChoosePassword />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot" element={<Forgot />} />
         <Route path="/reset-password" element={<ResetPassword />} />

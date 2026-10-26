@@ -60,7 +60,7 @@ psql "$DB_URL" -f supabase/setup/schedule-sync-worker.sql    # after editing its
 Then:
 
 - In Stripe, create prices, paste their IDs in Admin → Plans, and point a webhook at `/functions/v1/stripe-webhook`.
-- In Auth → Email templates → Confirm signup, use `{{ .Token }}` so users get a 6-digit code.
+- In Auth → Email templates → Magic Link **and** Confirm signup, use `{{ .Token }}` so users get a 6-digit code (account creation is OTP-only).
 - Add the hub's `/oauth/authorize` and `/invite/*` routes to your static host's SPA fallback.
 - Add platform admins after they sign up: `insert into platform_admins (user_id) select id from profiles where email = '…';`
 

@@ -74,25 +74,30 @@ let demoSignedIn = true;
 let demoAdmin = true;
 
 export const auth = {
-  async signUp(input: { firstName: string; lastName: string; email: string; password: string; company?: string }) {
+  async signUp(input: { firstName: string; lastName: string; email: string; company?: string }) {
     if (DEMO) return wait({ needsVerification: true });
-    const { error } = await sb().auth.signUp({
+    // Account creation is email OTP only. No password until the code is verified.
+    const { error } = await sb().auth.signInWithOtp({
       email: input.email,
-      password: input.password,
-      options: { data: { first_name: input.firstName, last_name: input.lastName, company_name: input.company ?? null } },
+      options: {
+        shouldCreateUser: true,
+        data: { first_name: input.firstName, last_name: input.lastName, company_name: input.company ?? null },
+      },
     });
     if (error) throw error;
     return { needsVerification: true };
   },
   async verifyOtp(email: string, token: string) {
     if (DEMO) { if (token !== "123456" && token.length !== 6) throw new Error("Enter the 6-digit code"); demoSignedIn = true; return wait(true); }
-    const { error } = await sb().auth.verifyOtp({ email, token, type: "signup" });
-    if (error) throw error;
+    const emailOtp = await sb().auth.verifyOtp({ email, token, type: "email" });
+    if (!emailOtp.error) return true;
+    const signupOtp = await sb().auth.verifyOtp({ email, token, type: "signup" });
+    if (signupOtp.error) throw emailOtp.error;
     return true;
   },
   async resendOtp(email: string) {
     if (DEMO) return wait(true);
-    const { error } = await sb().auth.resend({ type: "signup", email });
+    const { error } = await sb().auth.signInWithOtp({ email, options: { shouldCreateUser: false } });
     if (error) throw error;
     return true;
   },

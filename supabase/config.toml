@@ -16,6 +16,10 @@ otp_expiry = 600
 subject = "Your Omni Force Vector verification code"
 content_path = "./supabase/templates/confirm-signup.html"
 
+[auth.email.template.magic_link]
+subject = "Your Omni Force Vector verification code"
+content_path = "./supabase/templates/magic-link.html"
+
 [auth.email.template.recovery]
 subject = "Reset your Omni Force Vector password"
 content_path = "./supabase/templates/reset-password.html"

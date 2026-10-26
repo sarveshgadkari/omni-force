@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { auth } from "../../lib/api";
 import { selfServeBilling } from "../../lib/supabase";
-import { Alert, Button, Field, PasswordInput } from "../../components/ui";
+import { Alert, Button, Field } from "../../components/ui";
 
 /** 0–4: length, letters+numbers, mixed case, symbol or 14+ chars. */
 export function passwordScore(pw: string) {
@@ -27,8 +27,8 @@ export function StrengthMeter({ pw }: { pw: string }) {
   );
 }
 
-/** Sign-up steps: account, email, then plan and payment only when customers buy plans themselves. */
-export const signupSteps = () => (selfServeBilling() ? 4 : 2);
+/** Sign-up steps: details, email OTP, password, then plan and payment only when customers buy plans themselves. */
+export const signupSteps = () => (selfServeBilling() ? 5 : 3);
 
 export function StepsBar({ step }: { step: number }) {
   return <div className="steps-bar" aria-hidden="true">{Array.from({ length: signupSteps() }, (_, i) => i + 1).map((i) => <span key={i} className={i <= step ? "on" : ""} />)}</div>;
@@ -37,14 +37,13 @@ export function StepsBar({ step }: { step: number }) {
 export function Signup() {
   const nav = useNavigate();
   const [params] = useSearchParams();
-  const [f, setF] = useState({ firstName: "", lastName: "", email: "", company: "", password: "" });
+  const [f, setF] = useState({ firstName: "", lastName: "", email: "", company: "" });
   const [agree, setAgree] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
   const [touched, setTouched] = useState(false);
   const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement>) => setF({ ...f, [k]: e.target.value });
 
-  const pwOk = passwordOk(f.password);
   const emailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email);
   const fieldErr = (ok: boolean, msg: string) => (touched && !ok ? msg : undefined);
 
@@ -53,7 +52,6 @@ export function Signup() {
     setErr(null);
     setTouched(true);
     if (!f.firstName.trim() || !f.lastName.trim() || !emailOk) return setErr("Fill in your name and a valid email.");
-    if (!pwOk) return setErr("Use at least 10 characters with letters and numbers.");
     if (!agree) return setErr("Accept the terms to create your account.");
     setBusy(true);
     try {
@@ -73,7 +71,7 @@ export function Signup() {
         <StepsBar step={1} />
         <p className="step-tag">Step 1 of {signupSteps()} · Create account</p>
         <h2>Create your Omni Force Vector account</h2>
-        <p className="dim">One account for the Drone Directory, WSSO and Workforce 2.0.</p>
+        <p className="dim">We'll email a 6-digit code. You choose a password after you verify.</p>
       </div>
       {err && <Alert>{err}</Alert>}
       <div className="grid-2">
@@ -82,15 +80,11 @@ export function Signup() {
       </div>
       <Field label="Work email" required error={fieldErr(emailOk, "Enter a valid email address")}><input id="su-email" type="email" required autoComplete="email" value={f.email} onChange={set("email")} placeholder="you@company.com" /></Field>
       <Field label="Company" hint="Optional. You can create an organization for your team later."><input id="su-company" autoComplete="organization" value={f.company} onChange={set("company")} /></Field>
-      <Field label="Password" required hint="At least 10 characters, with letters and numbers." error={fieldErr(pwOk, "At least 10 characters, with letters and numbers")}>
-        <PasswordInput id="su-password" required autoComplete="new-password" value={f.password} onChange={set("password")} />
-      </Field>
-      <StrengthMeter pw={f.password} />
       <label className="check">
         <input id="su-terms" type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
         <span>I agree to the Terms of Service and Privacy Policy.</span>
       </label>
-      <Button type="submit" loading={busy} className="btn-block btn-lg">Create account</Button>
+      <Button type="submit" loading={busy} className="btn-block btn-lg">Email me a code</Button>
       <p className="dim small center">Already have an account? <Link to="/login">Sign in</Link></p>
     </form>
   );
